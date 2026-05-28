@@ -39,6 +39,70 @@ function BulletList({ items, numbered, tone }) {
   );
 }
 
+function WebMeetingsPage({ accent = "mono", onDataChanged }) {
+  const { MEETINGS, SCHEDULE } = window.TRIP_DATA;
+  const [editor, setEditor] = useState(null);
+  const meetingRows = Object.entries(MEETINGS).map(([id, meeting]) => {
+    const sched = SCHEDULE.find(s => s.meetingId === id);
+    const place = sched?.placeId ? window.TD.getPlace(sched.placeId) : null;
+    const day = window.TRIP_DATA.DAYS.find(d => d.date === sched?.date);
+    return { id, meeting, sched, place, day };
+  }).sort((a, b) => {
+    const left = `${a.sched?.date || "9999-99-99"} ${a.sched?.start || "99:99"}`;
+    const right = `${b.sched?.date || "9999-99-99"} ${b.sched?.start || "99:99"}`;
+    return left.localeCompare(right);
+  });
+
+  return (
+    <div className={`web-frame accent-${accent}`}>
+      <WebTopbar crumb={["출장", window.TRIP_DATA.TRIP.title, "미팅"]} onEdit={() => setEditor({ item: null })} />
+      <div className="layout">
+        <WebSidebar active="meetings" />
+        <div className="content">
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 16 }}>
+            <div>
+              <div className="h1">미팅</div>
+              <div style={{ font: "500 13px/18px var(--font-pretendard)", color: "var(--on-surface-neutral-50)", marginTop: 4 }}>
+                전체 미팅을 일정 순서대로 보고 상세 페이지로 이동
+              </div>
+            </div>
+            <button className="adot-btn primary" style={{ marginLeft: "auto", height: 34, padding: "0 12px", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => setEditor({ item: null })}>
+              <LIcon name="plus" size={14} />미팅 추가
+            </button>
+          </div>
+
+          <div className="collection-grid">
+            {meetingRows.map(({ id, meeting, sched, place, day }) => (
+              <button key={id} className="collection-card" onClick={() => window.location.hash = `/meeting/${id}`}>
+                <div className="collection-icon"><LIcon name="handshake" size={17} /></div>
+                <div>
+                  <div className="collection-title">{meeting.name}</div>
+                  <div className="collection-meta">
+                    {day?.label || "일정 미정"} · {sched?.start || "--:--"}{sched?.end ? ` - ${sched.end}` : ""} · {meeting.counterpart || "상대 미정"}
+                  </div>
+                  <div className="collection-body">
+                    {place?.name || "장소 미정"} · {(meeting.counterpartPeople || []).length}명 참석 · {(meeting.agenda || []).length}개 아젠다
+                  </div>
+                </div>
+                <LIcon name="chevron-right" size={14} color="var(--icon-dim)" />
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      {editor && (
+        <WebEntityEditor
+          entity="meetings"
+          item={editor.item}
+          title={editor.item ? "미팅 수정" : "미팅 추가"}
+          onClose={() => setEditor(null)}
+          onSaved={onDataChanged}
+        />
+      )}
+    </div>
+  );
+}
+
 function WebMeeting({ meetingId = "m-smci-exec", accent = "mono", onDataChanged }) {
   const { MEETINGS, SCHEDULE } = window.TRIP_DATA;
   const meeting = MEETINGS[meetingId];
@@ -199,4 +263,4 @@ function WebMeeting({ meetingId = "m-smci-exec", accent = "mono", onDataChanged 
   );
 }
 
-Object.assign(window, { WebMeeting });
+Object.assign(window, { WebMeeting, WebMeetingsPage });

@@ -111,6 +111,7 @@ function AdminApp({ route, settings, onDataChanged }) {
   if (path === "/hotels") return <WebCollectionPage kind="hotels" accent={settings.accent} onDataChanged={onDataChanged} />;
   if (path === "/events") return <WebCollectionPage kind="events" accent={settings.accent} onDataChanged={onDataChanged} />;
   if (path === "/itinerary") return <WebItinerary day={settings.day} personFilter="all" accent={settings.accent} onDataChanged={onDataChanged} />;
+  if (path === "/meetings") return <WebMeetingsPage accent={settings.accent} onDataChanged={onDataChanged} />;
   if (path === "/routes") return <WebRoutes day={settings.day} accent={settings.accent} onDataChanged={onDataChanged} />;
   if (path === "/admin") return <WebAdminData onDataChanged={onDataChanged} />;
   if (path.startsWith("/meeting")) {

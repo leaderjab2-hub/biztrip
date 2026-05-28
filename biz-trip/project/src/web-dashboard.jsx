@@ -9,7 +9,7 @@ function WebSidebar({ active = "dashboard" }) {
     { id: "flights",    label: "항공편",        icon: "plane",            count: FLIGHTS.length, href: "/flights" },
     { id: "hotels",     label: "호텔",          icon: "bed-double",       count: HOTEL ? 1 : 0, href: "/hotels" },
     { id: "itinerary",  label: "Day별 일정",    icon: "calendar-days",    count: SCHEDULE.length, href: "/itinerary" },
-    { id: "meetings",   label: "미팅",          icon: "handshake",        count: Object.keys(MEETINGS).length, href: "/meeting/m-smci-exec" },
+    { id: "meetings",   label: "미팅",          icon: "handshake",        count: Object.keys(MEETINGS).length, href: "/meetings" },
     { id: "events",     label: "행사",          icon: "ticket",           count: Object.keys(EVENTS).length, href: "/events" },
     { id: "routes",     label: "이동 동선",     icon: "route",            count: null, href: "/routes" },
     { id: "admin",      label: "데이터 편집",   icon: "database",         count: null, href: "/admin" },
