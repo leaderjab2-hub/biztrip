@@ -7,12 +7,13 @@
 
 <link rel="stylesheet" href="adot/colors_and_type.css" />
 <link rel="stylesheet" href="adot/adot.css" />
-<link rel="stylesheet" href="src/app.css?v=computex-0601b" />
+<link rel="stylesheet" href="src/app.css?v=crud-002" />
 
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2.76.1/dist/umd/supabase.js"></script>
 
 <style>
   html, body { margin: 0; background: #F7F8FA; }
@@ -22,23 +23,26 @@
 <div id="root"></div>
 
 <!-- Sample trip data -->
-<script src="src/data.js?v=computex-0601b"></script>
+<script src="src/data.js?v=crud-002"></script>
+<script src="config.js"></script>
+<script src="src/supabase-client.js?v=crud-002"></script>
 
 <!-- adot kit components -->
-<script type="text/babel" src="adot/components.jsx?v=computex-0601b"></script>
+<script type="text/babel" src="adot/components.jsx?v=crud-002"></script>
 
 <!-- App pieces -->
-<script type="text/babel" src="src/shared.jsx?v=computex-0601b"></script>
-<script type="text/babel" src="src/web-trip-list.jsx?v=computex-0601b"></script>
-<script type="text/babel" src="src/web-dashboard.jsx?v=computex-0601b"></script>
-<script type="text/babel" src="src/web-itinerary.jsx?v=computex-0601b"></script>
-<script type="text/babel" src="src/web-meeting.jsx?v=computex-0601b"></script>
-<script type="text/babel" src="src/web-routes.jsx?v=computex-0601b"></script>
-<script type="text/babel" src="src/mobile-briefing.jsx?v=computex-0601b"></script>
-<script type="text/babel" src="src/mobile-today.jsx?v=computex-0601b"></script>
-<script type="text/babel" src="src/mobile-day.jsx?v=computex-0601b"></script>
-<script type="text/babel" src="src/mobile-meeting.jsx?v=computex-0601b"></script>
-<script type="text/babel" src="src/app.jsx?v=computex-0601b"></script>
+<script type="text/babel" src="src/shared.jsx?v=crud-002"></script>
+<script type="text/babel" src="src/web-trip-list.jsx?v=crud-002"></script>
+<script type="text/babel" src="src/web-dashboard.jsx?v=crud-002"></script>
+<script type="text/babel" src="src/web-itinerary.jsx?v=crud-002"></script>
+<script type="text/babel" src="src/web-meeting.jsx?v=crud-002"></script>
+<script type="text/babel" src="src/web-routes.jsx?v=crud-002"></script>
+<script type="text/babel" src="src/web-admin-data.jsx?v=crud-002"></script>
+<script type="text/babel" src="src/mobile-briefing.jsx?v=crud-002"></script>
+<script type="text/babel" src="src/mobile-today.jsx?v=crud-002"></script>
+<script type="text/babel" src="src/mobile-day.jsx?v=crud-002"></script>
+<script type="text/babel" src="src/mobile-meeting.jsx?v=crud-002"></script>
+<script type="text/babel" src="src/app.jsx?v=crud-002"></script>
 
 </body>
 </html>

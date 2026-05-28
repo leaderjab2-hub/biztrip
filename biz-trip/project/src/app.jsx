@@ -61,6 +61,8 @@ function AppSelect({ label, value, options, onChange }) {
 function AppToolbar({ settings, setSettings, route }) {
   const shareHash = `/share?personId=${settings.viewAs}&day=${settings.day}&now=${settings.nowHHMM}`;
   const isShare = route.path.startsWith("/share");
+  const personOptions = window.TRIP_DATA.PEOPLE.map(p => ({ value: p.id, label: `${p.name} (${p.role})` }));
+  const dayOptions = window.TRIP_DATA.DAYS.map(d => ({ value: d.date, label: `${d.label} · ${d.date.slice(5).replace("-", "/")}` }));
 
   return (
     <div className="app-toolbar">
@@ -71,19 +73,22 @@ function AppToolbar({ settings, setSettings, route }) {
         <button className={`app-tab ${isShare ? "active" : ""}`} onClick={() => go(shareHash)}>
           <LIcon name="smartphone" size={15} />임원 공유
         </button>
+        <button className={`app-tab ${route.path === "/admin" ? "active" : ""}`} onClick={() => go("/admin")}>
+          <LIcon name="database" size={15} />데이터 편집
+        </button>
       </div>
 
       <div className="app-toolbar-controls">
         <AppSelect
           label="사람"
           value={settings.viewAs}
-          options={PERSON_OPTS}
+          options={personOptions}
           onChange={(v) => setSettings(s => ({ ...s, viewAs: v }))}
         />
         <AppSelect
           label="Day"
           value={settings.day}
-          options={DAY_OPTS}
+          options={dayOptions}
           onChange={(v) => setSettings(s => ({ ...s, day: v }))}
         />
         <AppSelect
@@ -97,12 +102,13 @@ function AppToolbar({ settings, setSettings, route }) {
   );
 }
 
-function AdminApp({ route, settings }) {
+function AdminApp({ route, settings, onDataChanged }) {
   const path = route.path;
   if (path === "/" || path === "/dashboard") return <WebDashboard accent={settings.accent} />;
   if (path === "/dashboard") return <WebDashboard accent={settings.accent} />;
   if (path === "/itinerary") return <WebItinerary day={settings.day} personFilter="all" accent={settings.accent} />;
   if (path === "/routes") return <WebRoutes day={settings.day} accent={settings.accent} />;
+  if (path === "/admin") return <WebAdminData onDataChanged={onDataChanged} />;
   if (path.startsWith("/meeting")) {
     const meetingId = path.split("/")[2] || "m-smci-exec";
     return <WebMeeting meetingId={meetingId} accent={settings.accent} />;
@@ -159,6 +165,29 @@ function ShareApp({ route, settings }) {
 function App() {
   const route = useHashRoute();
   const [settings, setSettings] = useState(APP_DEFAULTS);
+  const [dataVersion, setDataVersion] = useState(0);
+  const [dbState, setDbState] = useState(window.isDbEnabled() ? "연결 중" : "로컬 데이터");
+
+  async function refreshFromDb() {
+    setDbState("연결 중");
+    await window.ensureSupabaseClient?.();
+    if (!window.isDbEnabled()) {
+      setDbState("로컬 데이터");
+      return;
+    }
+    try {
+      await window.loadTripFromSupabase();
+      setDataVersion(v => v + 1);
+      setDbState("DB 연결됨");
+    } catch (err) {
+      console.error(err);
+      setDbState("DB 오류");
+    }
+  }
+
+  useEffect(() => {
+    refreshFromDb();
+  }, []);
 
   useEffect(() => {
     if (route.params.get("personId") || route.params.get("day") || route.params.get("now")) {
@@ -182,11 +211,15 @@ function App() {
   return (
     <div className={`app-root ${rootClass}`}>
       <AppToolbar settings={settings} setSettings={setSettings} route={route} />
+      <div className={`db-banner ${window.isDbEnabled() ? "ok" : "warn"}`}>
+        <span>{dbState}</span>
+        {!window.isDbEnabled() && <span>Supabase 쓰기/읽기를 켜려면 `config.js`에 anon key를 넣어주세요.</span>}
+      </div>
       <main className={isShare ? "app-main share-mode" : "app-main"}>
         {isShare ? (
           <ShareApp route={route} settings={settings} />
         ) : (
-          <AdminApp route={route} settings={settings} />
+          <AdminApp route={route} settings={settings} onDataChanged={refreshFromDb} key={dataVersion} />
         )}
       </main>
     </div>

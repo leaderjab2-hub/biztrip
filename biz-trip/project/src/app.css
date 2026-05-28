@@ -83,11 +83,28 @@ html, body {
   padding: 0 28px 0 10px;
 }
 .app-main {
-  min-height: calc(100vh - 54px);
+  min-height: calc(100vh - 82px);
 }
 .app-main .web-frame {
-  min-height: calc(100vh - 54px);
-  height: calc(100vh - 54px);
+  min-height: calc(100vh - 82px);
+  height: calc(100vh - 82px);
+}
+.db-banner {
+  height: 28px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--divider-10);
+  font: 600 11px/14px var(--font-pretendard);
+}
+.db-banner.ok {
+  background: var(--lime-100);
+  color: var(--lime-800);
+}
+.db-banner.warn {
+  background: var(--lemon-100);
+  color: #6b6420;
 }
 .share-mode {
   background: #efece6;
@@ -157,6 +174,111 @@ html, body {
 .share-tabs button.active {
   background: var(--on-surface-neutral-100);
   color: #fff;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--surface-neutral-10);
+  align-self: flex-start;
+}
+.admin-tabs button {
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 12px;
+  background: transparent;
+  color: var(--on-surface-neutral-70);
+  font: 600 12px/16px var(--font-pretendard);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.admin-tabs button.active {
+  background: var(--on-surface-neutral-100);
+  color: #fff;
+}
+.admin-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 16px;
+  min-height: 0;
+  flex: 1;
+}
+.admin-list,
+.admin-editor {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.admin-list-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px;
+}
+.admin-list-body button {
+  width: 100%;
+  min-height: 52px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  padding: 8px 10px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.admin-list-body button.active {
+  background: var(--surface-neutral-10);
+}
+.admin-list-body span {
+  font: 600 13px/17px var(--font-pretendard);
+  color: var(--on-surface-neutral-90);
+}
+.admin-list-body small {
+  margin-top: 2px;
+  font: 500 11px/14px var(--font-pretendard);
+  color: var(--on-surface-neutral-50);
+}
+.admin-list-actions {
+  border-top: 1px solid var(--divider-10);
+  padding: 10px;
+}
+.admin-list-actions .adot-btn,
+.admin-actions .adot-btn {
+  height: 34px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.admin-json textarea {
+  width: 100%;
+  height: calc(100vh - 290px);
+  min-height: 430px;
+  resize: none;
+  border: 1px solid var(--divider-20);
+  border-radius: 8px;
+  padding: 14px;
+  box-sizing: border-box;
+  background: #0f172a;
+  color: #e5e7eb;
+  font: 500 12px/18px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.admin-error {
+  margin-top: 8px;
+  color: var(--red-500);
+  font: 600 12px/16px var(--font-pretendard);
+}
+.admin-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
 }
 
 /* Tone chip — used everywhere */

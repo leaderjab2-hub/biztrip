@@ -12,6 +12,7 @@ function WebSidebar({ active = "dashboard" }) {
     { id: "meetings",   label: "미팅",          icon: "handshake",        count: Object.keys(MEETINGS).length, href: "/meeting/m-smci-exec" },
     { id: "events",     label: "행사",          icon: "ticket",           count: Object.keys(EVENTS).length, href: "/dashboard" },
     { id: "routes",     label: "이동 동선",     icon: "route",            count: null, href: "/routes" },
+    { id: "admin",      label: "데이터 편집",   icon: "database",         count: null, href: "/admin" },
     { id: "report",     label: "브리핑 리포트", icon: "file-text",        count: null, href: "/share?screen=briefing&personId=p-my&day=2026-06-01&now=10:42" },
     { id: "share",      label: "공유 링크",     icon: "share-2",          count: null, href: "/share?personId=p-my&day=2026-06-01&now=10:42" },
   ];
