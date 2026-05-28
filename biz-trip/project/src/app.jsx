@@ -104,16 +104,16 @@ function AppToolbar({ settings, setSettings, route }) {
 
 function AdminApp({ route, settings, onDataChanged }) {
   const path = route.path;
-  if (path === "/" || path === "/dashboard") return <WebDashboard accent={settings.accent} />;
-  if (path === "/dashboard") return <WebDashboard accent={settings.accent} />;
-  if (path === "/itinerary") return <WebItinerary day={settings.day} personFilter="all" accent={settings.accent} />;
-  if (path === "/routes") return <WebRoutes day={settings.day} accent={settings.accent} />;
+  if (path === "/" || path === "/dashboard") return <WebDashboard accent={settings.accent} onDataChanged={onDataChanged} />;
+  if (path === "/dashboard") return <WebDashboard accent={settings.accent} onDataChanged={onDataChanged} />;
+  if (path === "/itinerary") return <WebItinerary day={settings.day} personFilter="all" accent={settings.accent} onDataChanged={onDataChanged} />;
+  if (path === "/routes") return <WebRoutes day={settings.day} accent={settings.accent} onDataChanged={onDataChanged} />;
   if (path === "/admin") return <WebAdminData onDataChanged={onDataChanged} />;
   if (path.startsWith("/meeting")) {
     const meetingId = path.split("/")[2] || "m-smci-exec";
-    return <WebMeeting meetingId={meetingId} accent={settings.accent} />;
+    return <WebMeeting meetingId={meetingId} accent={settings.accent} onDataChanged={onDataChanged} />;
   }
-  return <WebDashboard accent={settings.accent} />;
+  return <WebDashboard accent={settings.accent} onDataChanged={onDataChanged} />;
 }
 
 function ShareApp({ route, settings }) {
@@ -213,7 +213,7 @@ function App() {
       <AppToolbar settings={settings} setSettings={setSettings} route={route} />
       <div className={`db-banner ${window.isDbEnabled() ? "ok" : "warn"}`}>
         <span>{dbState}</span>
-        {!window.isDbEnabled() && <span>Supabase 쓰기/읽기를 켜려면 `config.js`에 anon key를 넣어주세요.</span>}
+        {!window.isDbEnabled() && <span>Supabase 쓰기/읽기를 켜려면 Vercel 환경변수의 anon key를 확인해 주세요.</span>}
       </div>
       <main className={isShare ? "app-main share-mode" : "app-main"}>
         {isShare ? (

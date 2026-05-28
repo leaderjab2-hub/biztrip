@@ -39,17 +39,18 @@ function BulletList({ items, numbered, tone }) {
   );
 }
 
-function WebMeeting({ meetingId = "m-smci-exec", accent = "mono" }) {
+function WebMeeting({ meetingId = "m-smci-exec", accent = "mono", onDataChanged }) {
   const { MEETINGS, SCHEDULE } = window.TRIP_DATA;
   const meeting = MEETINGS[meetingId];
   const sched = SCHEDULE.find(s => s.meetingId === meetingId);
   const place = sched?.placeId ? window.TD.getPlace(sched.placeId) : null;
   const day = window.TRIP_DATA.DAYS.find(d => d.date === sched?.date);
   const attendees = (sched?.attendees || []).map(id => window.TD.getPerson(id)).filter(Boolean);
+  const [editor, setEditor] = useState(null);
 
   return (
     <div className={`web-frame accent-${accent}`}>
-      <WebTopbar crumb={["출장", window.TRIP_DATA.TRIP.title, "미팅", meeting.name]} />
+      <WebTopbar crumb={["출장", window.TRIP_DATA.TRIP.title, "미팅", meeting.name]} onEdit={() => setEditor("meeting")} />
       <div className="layout">
         <WebSidebar active="meetings" />
         <div className="content">
@@ -74,8 +75,12 @@ function WebMeeting({ meetingId = "m-smci-exec", accent = "mono" }) {
               </div>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
-              <button className="adot-btn line" style={{ height: 36, fontSize: 13 }}>저장</button>
-              <button className="adot-btn primary" style={{ height: 36, fontSize: 13 }}>확정</button>
+              <button className="adot-btn line" style={{ height: 36, fontSize: 13 }} onClick={() => setEditor("schedule")}>
+                <LIcon name="calendar-clock" size={14} />일정 수정
+              </button>
+              <button className="adot-btn primary" style={{ height: 36, fontSize: 13 }} onClick={() => setEditor("meeting")}>
+                <LIcon name="pencil" size={14} />미팅 수정
+              </button>
             </div>
           </div>
 
@@ -172,6 +177,24 @@ function WebMeeting({ meetingId = "m-smci-exec", accent = "mono" }) {
           </div>
         </div>
       </div>
+      {editor === "meeting" && (
+        <WebEntityEditor
+          entity="meetings"
+          item={{ id: meetingId, ...meeting }}
+          title="미팅 내용 수정"
+          onClose={() => setEditor(null)}
+          onSaved={onDataChanged}
+        />
+      )}
+      {editor === "schedule" && sched && (
+        <WebEntityEditor
+          entity="schedule"
+          item={sched}
+          title="미팅 일정 수정"
+          onClose={() => setEditor(null)}
+          onSaved={onDataChanged}
+        />
+      )}
     </div>
   );
 }

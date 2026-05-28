@@ -14,7 +14,7 @@ function RouteModeChip({ mode }) {
   );
 }
 
-function RouteList({ date, personFilter }) {
+function RouteList({ date, personFilter, onEdit }) {
   const routes = window.TD.getRoutesForDay(date, personFilter);
   if (!routes.length) {
     return (
@@ -56,7 +56,7 @@ function RouteList({ date, personFilter }) {
               <button className="adot-btn line" style={{ height: 32, padding: "0 10px", fontSize: 12, flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
                 <LIcon name="map" size={12} />지도
               </button>
-              <button className="adot-btn line" style={{ height: 32, padding: "0 10px", fontSize: 12, flex: 1 }}>수정</button>
+              <button className="adot-btn line" style={{ height: 32, padding: "0 10px", fontSize: 12, flex: 1 }} onClick={() => onEdit?.(route)}>수정</button>
             </div>
           </div>
         );
@@ -65,9 +65,10 @@ function RouteList({ date, personFilter }) {
   );
 }
 
-function WebRoutes({ day = "2026-06-11", accent = "mono" }) {
+function WebRoutes({ day = "2026-06-11", accent = "mono", onDataChanged }) {
   const [date, setDate] = useState(day);
   const [filter, setFilter] = useState("all");
+  const [editor, setEditor] = useState(null);
   useEffect(() => { setDate(day); }, [day]);
 
   const { DAYS, PEOPLE } = window.TRIP_DATA;
@@ -77,7 +78,7 @@ function WebRoutes({ day = "2026-06-11", accent = "mono" }) {
 
   return (
     <div className={`web-frame accent-${accent}`}>
-      <WebTopbar crumb={["출장", window.TRIP_DATA.TRIP.title, "이동 동선"]} />
+      <WebTopbar crumb={["출장", window.TRIP_DATA.TRIP.title, "이동 동선"]} onEdit={() => setEditor({ item: null, defaults: { date } })} />
       <div className="layout">
         <WebSidebar active="routes" />
         <div className="content">
@@ -92,8 +93,8 @@ function WebRoutes({ day = "2026-06-11", accent = "mono" }) {
               <button className="adot-btn line" style={{ height: 34, padding: "0 12px", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }}>
                 <LIcon name="map" size={14} />전체 지도 열기
               </button>
-              <button className="adot-btn primary" style={{ height: 34, padding: "0 12px", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <LIcon name="refresh-cw" size={14} />다시 계산
+              <button className="adot-btn primary" style={{ height: 34, padding: "0 12px", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => setEditor({ item: null, defaults: { date } })}>
+                <LIcon name="plus" size={14} />구간 추가
               </button>
             </div>
           </div>
@@ -160,11 +161,21 @@ function WebRoutes({ day = "2026-06-11", accent = "mono" }) {
                   {filter === "all" ? "전체 일정" : PEOPLE.find(p => p.id === filter)?.name}
                 </span>
               </div>
-              <RouteList date={date} personFilter={filter} />
+              <RouteList date={date} personFilter={filter} onEdit={(item) => setEditor({ item })} />
             </div>
           </div>
         </div>
       </div>
+      {editor && (
+        <WebEntityEditor
+          entity="routes"
+          item={editor.item}
+          title={editor.item ? "이동 구간 수정" : "이동 구간 추가"}
+          defaults={editor.defaults}
+          onClose={() => setEditor(null)}
+          onSaved={onDataChanged}
+        />
+      )}
     </div>
   );
 }

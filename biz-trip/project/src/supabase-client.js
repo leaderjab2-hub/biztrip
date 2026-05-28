@@ -239,6 +239,7 @@ const tableIds = {
 };
 
 function toDbRow(entity, item) {
+  if (entity === "trip") return { id: item.id, title: item.title, purpose: item.purpose, organization: item.organization, country: item.country, city: item.city, start_date: item.startDate, end_date: item.endDate, local_tz: item.localTz, status: item.status, share_token: item.shareToken, owner_name: item.ownerName };
   if (entity === "people") return { ...item, trip_id: BIZTRIP_ID };
   if (entity === "places") return { id: item.id, trip_id: BIZTRIP_ID, name: item.name, address: item.address, lat: item.lat, lng: item.lng, external_place_id: item.externalPlaceId, map_url: item.mapUrl };
   if (entity === "schedule") return { id: item.id, trip_id: BIZTRIP_ID, date: item.date, start_time: item.start, end_time: item.end, type: item.type, title: item.title, place_id: item.placeId, attendees: item.attendees || [], description: item.desc, meeting_id: item.meetingId, event_id: item.eventId, buffer_min: item.bufferMin || 10 };

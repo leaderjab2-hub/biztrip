@@ -19,7 +19,7 @@ function WebSidebar({ active = "dashboard" }) {
   return (
     <div className="sidebar">
       <div className="group">출장 관리</div>
-      {items.slice(0, 8).map(it => (
+      {items.slice(0, 9).map(it => (
         <div key={it.id} className={`nav-item ${active === it.id ? "active" : ""}`} onClick={() => window.location.hash = it.href}>
           <LIcon name={it.icon} size={16} />
           <span>{it.label}</span>
@@ -27,7 +27,7 @@ function WebSidebar({ active = "dashboard" }) {
         </div>
       ))}
       <div className="group">공유</div>
-      {items.slice(8).map(it => (
+      {items.slice(9).map(it => (
         <div key={it.id} className={`nav-item ${active === it.id ? "active" : ""}`} onClick={() => window.location.hash = it.href}>
           <LIcon name={it.icon} size={16} />
           <span>{it.label}</span>
@@ -37,7 +37,7 @@ function WebSidebar({ active = "dashboard" }) {
   );
 }
 
-function WebTopbar({ crumb }) {
+function WebTopbar({ crumb, onEdit }) {
   const crumbs = crumb || ["출장", window.TRIP_DATA.TRIP.title];
   return (
     <div className="topbar">
@@ -55,22 +55,24 @@ function WebTopbar({ crumb }) {
         <button className="adot-btn line" style={{ height: 34, padding: "0 14px", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }}>
           <LIcon name="share-2" size={14} />공유 링크
         </button>
-        <button className="adot-btn primary" style={{ height: 34, padding: "0 14px", fontSize: 13 }}>편집</button>
+        <button className="adot-btn primary" style={{ height: 34, padding: "0 14px", fontSize: 13 }} onClick={onEdit}>편집</button>
         <div className="avatar sm" style={{ background: "var(--surface-neutral-80)", color: "#fff" }}>나</div>
       </div>
     </div>
   );
 }
 
-function WebDashboard({ accent = "mono" }) {
+function WebDashboard({ accent = "mono", onDataChanged }) {
   const { TRIP, PEOPLE, FLIGHTS, HOTEL, DAYS, SCHEDULE, MEETINGS, EVENTS } = window.TRIP_DATA;
   const totalEvents = Object.keys(EVENTS).length;
   const totalMeetings = Object.keys(MEETINGS).length;
   const totalRoutes = window.TRIP_DATA.ROUTES.length;
+  const [editor, setEditor] = useState(null);
+  const openEditor = (entity, item, title, defaults) => setEditor({ entity, item, title, defaults });
 
   return (
     <div className={`web-frame accent-${accent}`}>
-      <WebTopbar />
+      <WebTopbar onEdit={() => openEditor("trip", TRIP, "출장 개요 수정")} />
       <div className="layout">
         <WebSidebar active="dashboard" />
         <div className="content">
@@ -148,10 +150,10 @@ function WebDashboard({ accent = "mono" }) {
                         <div style={{ font: "600 14px/18px var(--font-pretendard)" }}>{d.title}</div>
                         <div style={{ marginTop: 6, display: "flex", gap: 4, flexWrap: "wrap" }}>
                           {items.slice(0, 8).map(it => (
-                            <span key={it.id} className={`tone-chip tone-${window.TD.typeMeta[it.type].tone}`} style={{ height: 20 }}>
+                            <button key={it.id} className={`tone-chip tone-${window.TD.typeMeta[it.type].tone} chip-button`} style={{ height: 20 }} onClick={() => openEditor("schedule", it, "일정 수정")}>
                               <span style={{ fontVariantNumeric: "tabular-nums" }}>{it.start}</span>
                               <span style={{ opacity: 0.7, marginLeft: 4 }}>{it.title.length > 14 ? it.title.slice(0, 14) + "…" : it.title}</span>
-                            </span>
+                            </button>
                           ))}
                         </div>
                         <div style={{ marginTop: 6, font: "500 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>
@@ -173,6 +175,9 @@ function WebDashboard({ accent = "mono" }) {
                   <span style={{ marginLeft: "auto", font: "500 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>
                     총 {PEOPLE.length}명
                   </span>
+                  <button className="icon-btn mini" onClick={() => openEditor("people", null, "참석자 추가")}>
+                    <LIcon name="plus" size={13} />
+                  </button>
                 </div>
                 <div style={{ padding: "8px 0" }}>
                   {PEOPLE.map(p => {
@@ -186,7 +191,9 @@ function WebDashboard({ accent = "mono" }) {
                             {p.type === "executive" ? "임원" : "구성원"} · 미팅 {myItems}건
                           </div>
                         </div>
-                        <LIcon name="chevron-right" size={14} color="var(--icon-dim)" />
+                        <button className="icon-btn mini" onClick={() => openEditor("people", p, "참석자 수정")}>
+                          <LIcon name="pencil" size={13} />
+                        </button>
                       </div>
                     );
                   })}
@@ -233,10 +240,13 @@ function WebDashboard({ accent = "mono" }) {
                 <div className="ch">
                   <LIcon name="ticket" size={16} />
                   <span>행사</span>
+                  <button className="icon-btn mini" style={{ marginLeft: "auto" }} onClick={() => openEditor("events", null, "행사 추가")}>
+                    <LIcon name="plus" size={13} />
+                  </button>
                 </div>
                 <div style={{ padding: "12px 18px" }}>
                   {Object.entries(EVENTS).map(([id, e]) => (
-                    <div key={id}>
+                    <div key={id} className="editable-row">
                       <div style={{ font: "600 13px/16px var(--font-pretendard)" }}>{e.name}</div>
                       <div style={{ font: "500 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-50)", marginTop: 2 }}>
                         {e.host} · {e.start.slice(5).replace("-", "/")} – {e.end.slice(5).replace("-", "/")} · 세션 {e.sessions.length}
@@ -244,6 +254,9 @@ function WebDashboard({ accent = "mono" }) {
                       <div style={{ marginTop: 6, font: "500 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-60)" }}>
                         Dress: {e.dressCode}
                       </div>
+                      <button className="icon-btn mini" onClick={() => openEditor("events", { id, ...e }, "행사 수정")}>
+                        <LIcon name="pencil" size={13} />
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -252,6 +265,17 @@ function WebDashboard({ accent = "mono" }) {
           </div>
         </div>
       </div>
+      {editor && (
+        <WebEntityEditor
+          entity={editor.entity}
+          item={editor.item}
+          title={editor.title}
+          defaults={editor.defaults}
+          allowDelete={editor.entity !== "trip"}
+          onClose={() => setEditor(null)}
+          onSaved={onDataChanged}
+        />
+      )}
     </div>
   );
 }

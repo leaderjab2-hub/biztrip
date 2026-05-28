@@ -34,7 +34,7 @@ function PersonFilterChips({ filter, onChange }) {
   );
 }
 
-function ItineraryTable({ date, personFilter }) {
+function ItineraryTable({ date, personFilter, onEdit }) {
   const items = personFilter === "all"
     ? window.TD.getDayItems(date)
     : window.TD.getPersonItems(date, personFilter);
@@ -64,7 +64,7 @@ function ItineraryTable({ date, personFilter }) {
         <col />
         <col style={{ width: 180 }} />
         <col style={{ width: 180 }} />
-        <col style={{ width: 60 }} />
+        <col style={{ width: 72 }} />
       </colgroup>
       <thead>
         <tr>
@@ -132,9 +132,9 @@ function ItineraryTable({ date, personFilter }) {
                 ) : <span style={{ color: "var(--on-surface-neutral-50)", fontSize: 12 }}>—</span>}
               </td>
               <td>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "var(--icon-dim)" }}>
-                  <LIcon name="grip-vertical" size={14} />
-                </span>
+                <button className="adot-btn line table-action" onClick={() => onEdit?.(it)}>
+                  <LIcon name="pencil" size={12} />수정
+                </button>
               </td>
             </tr>
           );
@@ -144,9 +144,10 @@ function ItineraryTable({ date, personFilter }) {
   );
 }
 
-function WebItinerary({ day = "2026-06-11", personFilter: pf = "all", accent = "mono" }) {
+function WebItinerary({ day = "2026-06-11", personFilter: pf = "all", accent = "mono", onDataChanged }) {
   const [date, setDate] = useState(day);
   const [filter, setFilter] = useState(pf);
+  const [editor, setEditor] = useState(null);
   useEffect(() => { setDate(day); }, [day]);
   useEffect(() => { setFilter(pf); }, [pf]);
 
@@ -158,7 +159,7 @@ function WebItinerary({ day = "2026-06-11", personFilter: pf = "all", accent = "
 
   return (
     <div className={`web-frame accent-${accent}`}>
-      <WebTopbar crumb={["출장", window.TRIP_DATA.TRIP.title, "Day별 일정"]} />
+      <WebTopbar crumb={["출장", window.TRIP_DATA.TRIP.title, "Day별 일정"]} onEdit={() => setEditor({ item: null, defaults: { date } })} />
       <div className="layout">
         <WebSidebar active="itinerary" />
         <div className="content">
@@ -177,7 +178,7 @@ function WebItinerary({ day = "2026-06-11", personFilter: pf = "all", accent = "
               <button className="adot-btn line" style={{ height: 34, padding: "0 12px", fontSize: 13, display: "inline-flex", gap: 6, alignItems: "center" }}>
                 <LIcon name="refresh-cw" size={14} />이동 시간 다시 계산
               </button>
-              <button className="adot-btn primary" style={{ height: 34, padding: "0 12px", fontSize: 13, display: "inline-flex", gap: 6, alignItems: "center" }}>
+              <button className="adot-btn primary" style={{ height: 34, padding: "0 12px", fontSize: 13, display: "inline-flex", gap: 6, alignItems: "center" }} onClick={() => setEditor({ item: null, defaults: { date } })}>
                 <LIcon name="plus" size={14} />일정 추가
               </button>
             </div>
@@ -218,10 +219,20 @@ function WebItinerary({ day = "2026-06-11", personFilter: pf = "all", accent = "
 
           {/* Table */}
           <div className="card flush" style={{ overflow: "hidden", flex: 1 }}>
-            <ItineraryTable date={date} personFilter={filter} />
+            <ItineraryTable date={date} personFilter={filter} onEdit={(item) => setEditor({ item })} />
           </div>
         </div>
       </div>
+      {editor && (
+        <WebEntityEditor
+          entity="schedule"
+          item={editor.item}
+          title={editor.item ? "일정 수정" : "일정 추가"}
+          defaults={editor.defaults}
+          onClose={() => setEditor(null)}
+          onSaved={onDataChanged}
+        />
+      )}
     </div>
   );
 }
