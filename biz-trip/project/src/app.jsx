@@ -1,5 +1,4 @@
-// Executive Trip Planner — usable static web app
-// DB 연결 없이 src/data.js의 고정 출장 데이터를 읽어 관리자/임원 공유 화면을 렌더링한다.
+// Executive Trip Planner
 
 const APP_DEFAULTS = {
   viewAs: "p-my",
@@ -169,34 +168,70 @@ function ShareApp({ route, settings }) {
   );
 }
 
+function AppBootScreen({ title, body, retryLabel, onRetry, tone = "loading" }) {
+  return (
+    <div className="app-boot-shell">
+      <div className={`app-boot-card ${tone}`}>
+        {tone === "loading" ? (
+          <div className="app-boot-spinner" aria-hidden="true" />
+        ) : (
+          <div className="app-boot-icon">
+            <LIcon name="database" size={18} />
+          </div>
+        )}
+        <div className="app-boot-title">{title}</div>
+        <div className="app-boot-body">{body}</div>
+        {onRetry && (
+          <button className="adot-btn primary" style={{ height: 36, padding: "0 14px", fontSize: 13 }} onClick={onRetry}>
+            {retryLabel || "다시 시도"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const route = useHashRoute();
   const [settings, setSettings] = useState(APP_DEFAULTS);
   const [dataVersion, setDataVersion] = useState(0);
-  const [dbState, setDbState] = useState(window.isDbEnabled() ? "연결 중" : "로컬 데이터");
+  const [bootState, setBootState] = useState("loading");
+  const [bootError, setBootError] = useState("");
 
-  async function refreshFromDb() {
-    setDbState("연결 중");
+  async function refreshFromDb({ initial = false } = {}) {
+    if (initial) {
+      setBootState("loading");
+      setBootError("");
+    }
     await window.ensureSupabaseClient?.();
     if (!window.isDbEnabled()) {
-      setDbState("로컬 데이터");
-      return;
+      const message = "Supabase 환경변수를 확인해 주세요. DB 연결 정보가 아직 준비되지 않았습니다.";
+      if (initial) {
+        setBootError(message);
+        setBootState("error");
+      }
+      throw new Error(message);
     }
     try {
       await window.loadTripFromSupabase();
       setDataVersion(v => v + 1);
-      setDbState("DB 연결됨");
+      if (initial) setBootState("ready");
     } catch (err) {
       console.error(err);
-      setDbState("DB 오류");
+      if (initial) {
+        setBootError(err.message || "DB에서 출장 데이터를 불러오지 못했습니다.");
+        setBootState("error");
+      }
+      throw err;
     }
   }
 
   useEffect(() => {
-    refreshFromDb();
+    refreshFromDb({ initial: true }).catch(() => {});
   }, []);
 
   useEffect(() => {
+    if (bootState !== "ready") return;
     if (route.params.get("personId") || route.params.get("day") || route.params.get("now")) {
       setSettings(s => ({
         ...s,
@@ -205,7 +240,7 @@ function App() {
         nowHHMM: route.params.get("now") || s.nowHHMM,
       }));
     }
-  }, [route.path, route.params.toString()]);
+  }, [bootState, route.path, route.params.toString()]);
 
   const rootClass = [
     `accent-${settings.accent}`,
@@ -213,20 +248,42 @@ function App() {
     settings.dark ? "dark-on" : "",
   ].filter(Boolean).join(" ");
 
+  if (bootState === "loading") {
+    return (
+      <div className={`app-root ${rootClass}`}>
+        <AppBootScreen
+          title="출장 데이터를 불러오는 중"
+          body="Supabase에서 최신 일정을 읽고 있습니다."
+          tone="loading"
+        />
+      </div>
+    );
+  }
+
+  if (bootState === "error") {
+    return (
+      <div className={`app-root ${rootClass}`}>
+        <AppBootScreen
+          title="출장 데이터를 불러오지 못했습니다"
+          body={bootError || "DB 연결 상태를 확인한 뒤 다시 시도해 주세요."}
+          retryLabel="다시 불러오기"
+          onRetry={() => refreshFromDb({ initial: true }).catch(() => {})}
+          tone="error"
+        />
+      </div>
+    );
+  }
+
   const isShare = route.path.startsWith("/share");
 
   return (
     <div className={`app-root ${rootClass}`}>
       <AppToolbar settings={settings} setSettings={setSettings} route={route} />
-      <div className={`db-banner ${window.isDbEnabled() ? "ok" : "warn"}`}>
-        <span>{dbState}</span>
-        {!window.isDbEnabled() && <span>Supabase 쓰기/읽기를 켜려면 Vercel 환경변수의 anon key를 확인해 주세요.</span>}
-      </div>
       <main className={isShare ? "app-main share-mode" : "app-main"}>
         {isShare ? (
           <ShareApp route={route} settings={settings} />
         ) : (
-          <AdminApp route={route} settings={settings} onDataChanged={refreshFromDb} key={dataVersion} />
+          <AdminApp route={route} settings={settings} onDataChanged={() => refreshFromDb().catch(() => {})} key={dataVersion} />
         )}
       </main>
     </div>
