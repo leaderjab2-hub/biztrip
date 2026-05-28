@@ -2,16 +2,20 @@
 
 function MobileBriefing({ personId = "p-ceo", onOpenDays, onOpenMeetings, onOpenMeeting }) {
   const { TRIP, HOTEL, FLIGHTS, DAYS, SCHEDULE, MEETINGS } = window.TRIP_DATA;
-  const person = window.TD.getPerson(personId);
   const passengerMatches = (entry) => entry === personId || entry?.personId === personId;
   const myFlights = FLIGHTS.filter(f => (f.passengers || []).some(passengerMatches));
   const flights = myFlights.length ? myFlights : FLIGHTS;
   const myHotel = (HOTEL.guests || []).find(passengerMatches);
-  const meetingCount = SCHEDULE.filter(item => item.type === "meeting" && (item.attendees || []).includes(personId)).length;
   const keyMeetings = Object.entries(MEETINGS).map(([id, meeting]) => {
     const sched = SCHEDULE.find(item => item.meetingId === id);
     return { id, meeting, sched };
   }).filter(row => row.sched && (row.sched.attendees || []).includes(personId)).slice(0, 3);
+  const formatDuration = (minutes) => {
+    if (!minutes) return "시간 확인 필요";
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return h ? `${h}h ${m ? `${m}m` : ""}`.trim() : `${m}m`;
+  };
 
   return (
     <div className="m-screen">
@@ -28,35 +32,21 @@ function MobileBriefing({ personId = "p-ceo", onOpenDays, onOpenMeetings, onOpen
           <span className="tick-dot" />
           <span>{TRIP.startDate.slice(5).replace("-", "/")} ~ {TRIP.endDate.slice(5).replace("-", "/")}</span>
         </div>
-        <div style={{ marginTop: 14, padding: "10px 12px", borderRadius: 10, background: "var(--surface-neutral-10)", display: "flex", alignItems: "center", gap: 10 }}>
-          <Avatar person={person} size="lg" />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ font: "600 14px/18px var(--font-pretendard)" }}>{person.name} · {person.role}</div>
-            <div style={{ font: "500 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-50)", marginTop: 2 }}>
-              본인 일정만 표시 · 모바일 공유 링크
-            </div>
-          </div>
-        </div>
-        <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
-          <div className="m-brief-stat"><b>{DAYS.length}</b><span>일</span></div>
-          <div className="m-brief-stat"><b>{meetingCount}</b><span>미팅</span></div>
-          <div className="m-brief-stat"><b>{flights.length}</b><span>항공</span></div>
-        </div>
       </div>
 
-      {/* Outbound flight card */}
-      <div className="m-section">출국 항공편</div>
-      {flights.filter(f => f.type === "outbound").map(f => {
+      <div className="m-section">항공편</div>
+      {flights.map(f => {
         const seat = (f.passengers || []).find(passengerMatches)?.seat || "확인 필요";
+        const isReturn = f.type === "return";
         return (
           <div key={f.id} className="m-card">
             <div className="m-card-pad" style={{ display: "flex", gap: 12, alignItems: "center" }}>
               <div style={{ width: 36, height: 36, borderRadius: 9, background: "var(--surface-neutral-10)", display: "grid", placeItems: "center" }}>
-                <LIcon name="plane-takeoff" size={18} />
+                <LIcon name={isReturn ? "plane-landing" : "plane-takeoff"} size={18} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ font: "600 14px/18px var(--font-pretendard)" }}>{f.airline} {f.flightNumber}</div>
-                <div style={{ font: "500 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>좌석 {seat} · 6h 30m</div>
+                <div style={{ font: "600 14px/18px var(--font-pretendard)" }}>{isReturn ? "귀국" : "출국"} · {f.airline} {f.flightNumber}</div>
+                <div style={{ font: "500 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>좌석 {seat} · {formatDuration(f.durationMin)}</div>
               </div>
               <span className="tone-chip tone-neutral">예약 {f.bookingRef}</span>
             </div>
