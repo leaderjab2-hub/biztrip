@@ -173,9 +173,6 @@ function WebItinerary({ day = "2026-06-11", personFilter: pf = "all", accent = "
             </div>
             <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
               <button className="adot-btn line" style={{ height: 34, padding: "0 12px", fontSize: 13, display: "inline-flex", gap: 6, alignItems: "center" }}>
-                <LIcon name="copy" size={14} />Day 복사
-              </button>
-              <button className="adot-btn line" style={{ height: 34, padding: "0 12px", fontSize: 13, display: "inline-flex", gap: 6, alignItems: "center" }}>
                 <LIcon name="refresh-cw" size={14} />이동 시간 다시 계산
               </button>
               <button className="adot-btn primary" style={{ height: 34, padding: "0 12px", fontSize: 13, display: "inline-flex", gap: 6, alignItems: "center" }} onClick={() => setEditor({ item: null, defaults: { date } })}>
