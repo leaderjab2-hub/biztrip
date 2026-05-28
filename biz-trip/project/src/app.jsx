@@ -122,47 +122,141 @@ function AdminApp({ route, settings, onDataChanged }) {
   return <WebDashboard accent={settings.accent} onDataChanged={onDataChanged} />;
 }
 
+function ShareTabButton({ active, icon, label, onClick }) {
+  return (
+    <button className={active ? "active" : ""} onClick={onClick}>
+      <LIcon name={icon} size={17} />
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function MobileDaysOverview({ personId, currentDay, onOpenDay }) {
+  const { DAYS } = window.TRIP_DATA;
+  return (
+    <div className="m-screen">
+      <div className="m-header">
+        <div className="m-h-eyebrow">
+          <LIcon name="calendar-days" size={12} />
+          <span>Day별 일정</span>
+        </div>
+        <div className="m-h-title">출장 전체 일정</div>
+        <div className="m-h-sub">6/1부터 6/4까지 핵심 일정만 빠르게 확인</div>
+      </div>
+      <div style={{ padding: "14px 18px 24px", display: "flex", flexDirection: "column", gap: 10 }}>
+        {DAYS.map((day) => {
+          const items = window.TD.getPersonItems(day.date, personId);
+          const meetings = items.filter(item => item.type === "meeting").length;
+          const first = items[0];
+          const last = items[items.length - 1];
+          return (
+            <button key={day.date} className={`m-day-card ${day.date === currentDay ? "active" : ""}`} onClick={() => onOpenDay(day.date)}>
+              <div className="m-day-date">
+                <b>{day.label}</b>
+                <span>{day.date.slice(5).replace("-", "/")} ({day.weekday})</span>
+              </div>
+              <div className="m-day-main">
+                <div>{day.title}</div>
+                <span>{items.length}개 일정 · 미팅 {meetings}건</span>
+                {first && last && <small>{first.start} {first.title} → {last.start} {last.title}</small>}
+              </div>
+              <LIcon name="chevron-right" size={16} />
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function MobileMeetingsOverview({ personId, onOpenMeeting }) {
+  const rows = Object.entries(window.TRIP_DATA.MEETINGS).map(([id, meeting]) => {
+    const sched = window.TRIP_DATA.SCHEDULE.find(item => item.meetingId === id);
+    const place = sched?.placeId ? window.TD.getPlace(sched.placeId) : null;
+    const day = window.TRIP_DATA.DAYS.find(item => item.date === sched?.date);
+    return { id, meeting, sched, place, day };
+  }).filter(row => !row.sched || (row.sched.attendees || []).includes(personId))
+    .sort((a, b) => `${a.sched?.date || "9999"} ${a.sched?.start || "99:99"}`.localeCompare(`${b.sched?.date || "9999"} ${b.sched?.start || "99:99"}`));
+
+  return (
+    <div className="m-screen">
+      <div className="m-header">
+        <div className="m-h-eyebrow">
+          <LIcon name="handshake" size={12} />
+          <span>미팅</span>
+        </div>
+        <div className="m-h-title">미팅 브리핑</div>
+        <div className="m-h-sub">목적, 참석자, 토킹 포인트를 미팅별로 확인</div>
+      </div>
+      <div style={{ padding: "14px 18px 24px", display: "flex", flexDirection: "column", gap: 10 }}>
+        {rows.map(({ id, meeting, sched, place, day }) => (
+          <button key={id} className="m-meeting-card" onClick={() => onOpenMeeting(id)}>
+            <div className="m-meeting-top">
+              <TypeChip type="meeting" />
+              <span>{day?.label || "일정 미정"} {sched?.start || "--:--"}</span>
+            </div>
+            <div className="m-meeting-title">{meeting.name}</div>
+            <div className="m-meeting-meta">
+              <span>{meeting.counterpart || "상대 미정"}</span>
+              {place && <span>{place.name}</span>}
+            </div>
+            <div className="m-meeting-foot">
+              <span>{(meeting.agenda || []).length}개 아젠다</span>
+              <span>{(meeting.talkingPoints || []).length}개 토킹 포인트</span>
+              <LIcon name="chevron-right" size={15} />
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ShareApp({ route, settings }) {
   const requestedPersonId = route.params.get("personId") || settings.viewAs;
   const personId = window.TD.getPerson(requestedPersonId) ? requestedPersonId : APP_DEFAULTS.viewAs;
   const day = route.params.get("day") || settings.day;
   const nowHHMM = route.params.get("now") || settings.nowHHMM;
-  const screen = route.params.get("screen") || "today";
+  const screen = route.params.get("screen") || "briefing";
+  const meetingId = route.params.get("meetingId") || "m-smci-exec";
   const person = window.TD.getPerson(personId);
 
-  const nextScreen = (next) => {
-    go(`/share?personId=${personId}&day=${day}&now=${nowHHMM}&screen=${next}`);
+  const nextScreen = (next, nextParams = {}) => {
+    const qs = new URLSearchParams({ personId, day, now: nowHHMM, screen: next, ...nextParams });
+    go(`/share?${qs.toString()}`);
   };
 
-  return (
-    <div className="share-app-shell">
-      <div className="share-top">
-        <button onClick={() => go("/dashboard")} className="share-back">
-          <LIcon name="chevron-left" size={18} />관리자
-        </button>
-        <div>
-          <div className="share-title">임원 공유 링크</div>
-          <div className="share-sub">{person?.name} · 읽기 전용 · {window.TRIP_DATA.TRIP.title}</div>
-        </div>
-      </div>
+  const navScreen = screen === "meeting" ? "meetings" : screen;
 
-      <div className="share-phone">
-        <div className="share-tabs">
-          {[
-            ["briefing", "브리핑"],
-            ["today", "오늘"],
-            ["day", "전체"],
-            ["meeting", "미팅"],
-          ].map(([id, label]) => (
-            <button key={id} className={screen === id ? "active" : ""} onClick={() => nextScreen(id)}>
-              {label}
-            </button>
-          ))}
+  return (
+    <div className="share-native">
+      <div className="share-native-status">
+        <div>
+          <b>{window.TRIP_DATA.TRIP.title}</b>
+          <span>{person?.name} · 모바일 브리핑</span>
         </div>
-        {screen === "briefing" && <MobileBriefing personId={personId} />}
+        <span>6/1-6/4</span>
+      </div>
+      <div className="share-native-body">
+        {screen === "briefing" && (
+          <MobileBriefing
+            personId={personId}
+            onOpenDays={() => nextScreen("days")}
+            onOpenMeetings={() => nextScreen("meetings")}
+            onOpenMeeting={(id) => nextScreen("meeting", { meetingId: id })}
+          />
+        )}
         {screen === "today" && <MobileToday personId={personId} date={day} nowHHMM={nowHHMM} />}
+        {screen === "days" && <MobileDaysOverview personId={personId} currentDay={day} onOpenDay={(nextDay) => nextScreen("day", { day: nextDay })} />}
         {screen === "day" && <MobileDay personId={personId} date={day} />}
-        {screen === "meeting" && <MobileMeeting meetingId="m-smci-exec" personId={personId} />}
+        {screen === "meetings" && <MobileMeetingsOverview personId={personId} onOpenMeeting={(id) => nextScreen("meeting", { meetingId: id })} />}
+        {screen === "meeting" && <MobileMeeting meetingId={meetingId} personId={personId} onBack={() => nextScreen("meetings")} />}
+      </div>
+      <div className="share-bottom-nav">
+        <ShareTabButton active={navScreen === "briefing"} icon="briefcase" label="브리핑" onClick={() => nextScreen("briefing")} />
+        <ShareTabButton active={navScreen === "today"} icon="clock" label="오늘" onClick={() => nextScreen("today")} />
+        <ShareTabButton active={navScreen === "days" || navScreen === "day"} icon="calendar-days" label="일정" onClick={() => nextScreen("days")} />
+        <ShareTabButton active={navScreen === "meetings"} icon="handshake" label="미팅" onClick={() => nextScreen("meetings")} />
       </div>
     </div>
   );
@@ -276,15 +370,19 @@ function App() {
 
   const isShare = route.path.startsWith("/share");
 
+  if (isShare) {
+    return (
+      <div className={`app-root share-root ${rootClass}`}>
+        <ShareApp route={route} settings={settings} />
+      </div>
+    );
+  }
+
   return (
     <div className={`app-root ${rootClass}`}>
       <AppToolbar settings={settings} setSettings={setSettings} route={route} />
-      <main className={isShare ? "app-main share-mode" : "app-main"}>
-        {isShare ? (
-          <ShareApp route={route} settings={settings} />
-        ) : (
-          <AdminApp route={route} settings={settings} onDataChanged={() => refreshFromDb().catch(() => {})} key={dataVersion} />
-        )}
+      <main className="app-main">
+        <AdminApp route={route} settings={settings} onDataChanged={() => refreshFromDb().catch(() => {})} key={dataVersion} />
       </main>
     </div>
   );

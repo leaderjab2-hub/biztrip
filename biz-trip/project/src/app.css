@@ -141,6 +141,96 @@ html, body {
 .share-mode {
   background: #efece6;
 }
+.share-root {
+  min-height: 100dvh;
+  background: var(--bg-05);
+}
+.share-native {
+  min-height: 100dvh;
+  max-width: 520px;
+  margin: 0 auto;
+  background: var(--bg-05);
+  display: flex;
+  flex-direction: column;
+  color: var(--on-surface-neutral-90);
+}
+.share-native-status {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: calc(10px + env(safe-area-inset-top)) 18px 10px;
+  background: rgba(255,255,255,0.96);
+  border-bottom: 1px solid var(--divider-10);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.share-native-status > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.share-native-status b {
+  font: 700 14px/18px var(--font-pretendard);
+  color: var(--on-surface-neutral-100);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.share-native-status span {
+  font: 600 11px/14px var(--font-pretendard);
+  color: var(--on-surface-neutral-50);
+}
+.share-native-status > span {
+  margin-left: auto;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 9999px;
+  background: var(--surface-neutral-10);
+  color: var(--on-surface-neutral-70);
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.share-native-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding-bottom: calc(76px + env(safe-area-inset-bottom));
+}
+.share-bottom-nav {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  z-index: 25;
+  width: min(520px, 100%);
+  transform: translateX(-50%);
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  background: rgba(255,255,255,0.96);
+  border-top: 1px solid var(--divider-10);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.share-bottom-nav button {
+  height: 48px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--on-surface-neutral-50);
+  font: 700 11px/14px var(--font-pretendard);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.share-bottom-nav button.active {
+  background: var(--on-surface-neutral-100);
+  color: #fff;
+}
 .share-app-shell {
   min-height: calc(100vh - 54px);
   padding: 24px;
@@ -917,6 +1007,102 @@ html, body {
 }
 .m-cta.full { width: 100%; }
 .m-cta.sm { height: 36px; font-size: 13px; }
+.m-brief-stat {
+  min-height: 50px;
+  border-radius: 8px;
+  background: var(--bg-00);
+  border: 1px solid var(--divider-10);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 10px;
+}
+.m-brief-stat b {
+  font: 800 20px/23px var(--font-pretendard);
+  color: var(--on-surface-neutral-100);
+}
+.m-brief-stat span {
+  margin-top: 1px;
+  font: 700 10px/13px var(--font-pretendard);
+  color: var(--on-surface-neutral-50);
+}
+.m-day-card,
+.m-meeting-card {
+  width: 100%;
+  border: 1px solid var(--divider-10);
+  border-radius: 8px;
+  background: var(--bg-00);
+  padding: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.m-day-card {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+.m-day-card.active {
+  border-color: var(--on-surface-neutral-100);
+  box-shadow: 0 2px 0 var(--on-surface-neutral-100);
+}
+.m-day-date {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.m-day-date b {
+  font: 800 17px/21px var(--font-pretendard);
+}
+.m-day-date span {
+  font: 600 10px/13px var(--font-pretendard);
+  color: var(--on-surface-neutral-50);
+}
+.m-day-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.m-day-main div,
+.m-meeting-title {
+  font: 700 14px/18px var(--font-pretendard);
+  color: var(--on-surface-neutral-90);
+}
+.m-day-main span,
+.m-day-main small,
+.m-meeting-meta,
+.m-meeting-foot {
+  font: 600 11px/15px var(--font-pretendard);
+  color: var(--on-surface-neutral-50);
+}
+.m-day-main small {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.m-meeting-card {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.m-meeting-top,
+.m-meeting-meta,
+.m-meeting-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.m-meeting-top > span {
+  font: 700 11px/14px var(--font-pretendard);
+  color: var(--on-surface-neutral-50);
+  font-variant-numeric: tabular-nums;
+}
+.m-meeting-foot svg {
+  margin-left: auto;
+}
 
 /* Dot leader between time + title (mobile) */
 .tick-dot { width: 4px; height: 4px; border-radius: 9999px; background: currentColor; opacity: 0.5; }

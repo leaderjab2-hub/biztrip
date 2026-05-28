@@ -1,10 +1,17 @@
 // Mobile share — Pre-trip briefing (full trip overview at a glance)
 
-function MobileBriefing({ personId = "p-ceo" }) {
-  const { TRIP, HOTEL, FLIGHTS, DAYS } = window.TRIP_DATA;
+function MobileBriefing({ personId = "p-ceo", onOpenDays, onOpenMeetings, onOpenMeeting }) {
+  const { TRIP, HOTEL, FLIGHTS, DAYS, SCHEDULE, MEETINGS } = window.TRIP_DATA;
   const person = window.TD.getPerson(personId);
-  const myFlights = FLIGHTS.filter(f => f.passengers.some(p => p.personId === personId));
-  const myHotel = HOTEL.guests.find(g => g.personId === personId);
+  const passengerMatches = (entry) => entry === personId || entry?.personId === personId;
+  const myFlights = FLIGHTS.filter(f => (f.passengers || []).some(passengerMatches));
+  const flights = myFlights.length ? myFlights : FLIGHTS;
+  const myHotel = (HOTEL.guests || []).find(passengerMatches);
+  const meetingCount = SCHEDULE.filter(item => item.type === "meeting" && (item.attendees || []).includes(personId)).length;
+  const keyMeetings = Object.entries(MEETINGS).map(([id, meeting]) => {
+    const sched = SCHEDULE.find(item => item.meetingId === id);
+    return { id, meeting, sched };
+  }).filter(row => row.sched && (row.sched.attendees || []).includes(personId)).slice(0, 3);
 
   return (
     <div className="m-screen">
@@ -30,12 +37,17 @@ function MobileBriefing({ personId = "p-ceo" }) {
             </div>
           </div>
         </div>
+        <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+          <div className="m-brief-stat"><b>{DAYS.length}</b><span>일</span></div>
+          <div className="m-brief-stat"><b>{meetingCount}</b><span>미팅</span></div>
+          <div className="m-brief-stat"><b>{flights.length}</b><span>항공</span></div>
+        </div>
       </div>
 
       {/* Outbound flight card */}
       <div className="m-section">출국 항공편</div>
-      {myFlights.filter(f => f.type === "outbound").map(f => {
-        const seat = f.passengers.find(p => p.personId === personId)?.seat;
+      {flights.filter(f => f.type === "outbound").map(f => {
+        const seat = (f.passengers || []).find(passengerMatches)?.seat || "확인 필요";
         return (
           <div key={f.id} className="m-card">
             <div className="m-card-pad" style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -117,6 +129,34 @@ function MobileBriefing({ personId = "p-ceo" }) {
         </div>
       </div>
 
+      <div className="m-section">핵심 미팅</div>
+      <div className="m-card">
+        <div style={{ padding: "4px 0" }}>
+          {keyMeetings.map(({ id, meeting, sched }, idx) => (
+            <button key={id} type="button" onClick={() => onOpenMeeting?.(id)} style={{
+              width: "100%",
+              border: 0,
+              background: "transparent",
+              display: "flex", alignItems: "center", gap: 10,
+              padding: "11px 16px",
+              borderBottom: idx < keyMeetings.length - 1 ? "1px solid var(--divider-10)" : 0,
+              textAlign: "left",
+            }}>
+              <div style={{ width: 54, flexShrink: 0, font: "700 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-80)", fontVariantNumeric: "tabular-nums" }}>
+                {sched.date.slice(5).replace("-", "/")}<br />{sched.start}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ font: "700 13px/17px var(--font-pretendard)" }}>{meeting.name}</div>
+                <div style={{ marginTop: 2, font: "600 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>
+                  {meeting.counterpart || "상대 미정"}
+                </div>
+              </div>
+              <LIcon name="chevron-right" size={15} color="var(--icon-dim)" />
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Day summary */}
       <div className="m-section">일자별 요약</div>
       <div className="m-card">
@@ -151,8 +191,8 @@ function MobileBriefing({ personId = "p-ceo" }) {
 
       {/* Footer CTA */}
       <div style={{ padding: "16px 18px 28px", display: "flex", flexDirection: "column", gap: 8 }}>
-        <button className="m-cta full"><LIcon name="download" size={14} color="#fff" />PDF로 저장</button>
-        <button className="m-cta line full">전체 일정 보기</button>
+        <button type="button" className="m-cta full" onClick={onOpenDays}><LIcon name="calendar-days" size={14} color="#fff" />Day별 일정 보기</button>
+        <button type="button" className="m-cta line full" onClick={onOpenMeetings}>미팅 브리핑 보기</button>
       </div>
     </div>
   );

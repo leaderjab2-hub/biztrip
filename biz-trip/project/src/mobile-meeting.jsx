@@ -34,19 +34,39 @@ function MeetingMobileBullets({ items, tone = "default", numbered }) {
   );
 }
 
-function MobileMeeting({ meetingId = "m-smci-exec", personId = "p-my" }) {
+function MobileMeeting({ meetingId = "m-smci-exec", personId = "p-my", onBack }) {
   const { MEETINGS, SCHEDULE } = window.TRIP_DATA;
   const meeting = MEETINGS[meetingId];
   const sched = SCHEDULE.find(s => s.meetingId === meetingId);
   const place = sched?.placeId ? window.TD.getPlace(sched.placeId) : null;
   const day = window.TRIP_DATA.DAYS.find(d => d.date === sched?.date);
 
+  if (!meeting) {
+    return (
+      <div className="m-screen">
+        <div className="m-header">
+          <div className="m-h-eyebrow">
+            <LIcon name="handshake" size={12} />
+            <span>미팅</span>
+          </div>
+          <div className="m-h-title">미팅을 찾을 수 없습니다</div>
+          <div className="m-h-sub">미팅 목록에서 다시 선택해주세요.</div>
+        </div>
+        <div style={{ padding: "16px 18px 28px" }}>
+          <button type="button" className="m-cta full" onClick={onBack}>미팅 목록으로</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="m-screen">
       {/* Header */}
       <div className="m-header" style={{ paddingBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <LIcon name="chevron-left" size={22} />
+          <button type="button" onClick={onBack} aria-label="미팅 목록으로" style={{ width: 32, height: 32, border: 0, background: "transparent", padding: 0, display: "grid", placeItems: "center" }}>
+            <LIcon name="chevron-left" size={22} />
+          </button>
           <div style={{ flex: 1, textAlign: "center", font: "600 15px/18px var(--font-pretendard)" }}>{meeting.counterpart}</div>
           <LIcon name="more-vertical" size={20} />
         </div>
@@ -59,11 +79,11 @@ function MobileMeeting({ meetingId = "m-smci-exec", personId = "p-my" }) {
         </div>
         <div className="m-h-title" style={{ marginTop: 6 }}>{meeting.name}</div>
         {place && (
-          <div className="m-h-sub">
+          <button type="button" className="m-h-sub" onClick={() => window.openMapUrl(place.mapUrl, `${place.name} ${place.address || ""}`)} style={{ width: "100%", border: 0, background: "transparent", padding: 0, textAlign: "left" }}>
             <LIcon name="map-pin" size={12} />
             <span>{place.name}</span>
             <span style={{ marginLeft: "auto", color: "var(--blue-700)", fontWeight: 600, fontSize: 12 }}>지도</span>
-          </div>
+          </button>
         )}
       </div>
 
@@ -137,8 +157,8 @@ function MobileMeeting({ meetingId = "m-smci-exec", personId = "p-my" }) {
 
       {/* Bottom action */}
       <div style={{ padding: "16px 18px 28px", display: "flex", gap: 8 }}>
-        <button className="m-cta line" style={{ flex: 1 }}>전화</button>
-        <button className="m-cta" style={{ flex: 2, gap: 6 }}>
+        <button type="button" className="m-cta line" style={{ flex: 1 }} onClick={onBack}>목록</button>
+        <button type="button" className="m-cta" style={{ flex: 2, gap: 6 }} onClick={() => window.openMapUrl(place?.mapUrl, place?.name || meeting.name)}>
           <LIcon name="map" size={14} color="#fff" />길 안내 시작
         </button>
       </div>
