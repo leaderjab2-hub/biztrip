@@ -1,10 +1,18 @@
-// Mobile share — Day detail with route segments inline + map
+// Mobile share — Day detail with route segments inline
 
 function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay }) {
   const items = window.TD.getPersonItems(date, personId);
   const person = window.TD.getPerson(personId);
   const day = window.TRIP_DATA.DAYS.find(d => d.date === date);
   const allDays = window.TRIP_DATA.DAYS;
+  const placeStops = items
+    .map(item => item.placeId ? window.TD.getPlace(item.placeId) : null)
+    .filter(Boolean)
+    .filter((place, idx, arr) => idx === 0 || place.id !== arr[idx - 1].id);
+  const knownPlaceStops = placeStops.filter(place => place.id !== "pl-unknown");
+  const firstPlace = knownPlaceStops[0];
+  const lastPlace = knownPlaceStops[knownPlaceStops.length - 1];
+  const explicitRoutes = window.TD.getRoutesForDay(date, personId).filter(route => !route.inferred);
 
   return (
     <div className="m-screen">
@@ -37,35 +45,36 @@ function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay }) {
         </div>
       </div>
 
-      {/* Today's mini-map */}
       <div style={{ padding: "14px 18px 0" }}>
-        <div className="map-tile lg">
-          {/* roads */}
-          <div className="road" style={{ top: "30%", left: "15%", right: "10%", transform: "rotate(-6deg)" }} />
-          <div className="road" style={{ top: "55%", left: "20%", right: "20%", transform: "rotate(4deg)" }} />
-          <div className="road" style={{ top: "75%", left: "10%", right: "25%", transform: "rotate(-2deg)" }} />
-          {/* numbered pins for route */}
-          <div className="pin" style={{ top: "18%", left: "22%" }}>1</div>
-          <div className="pin alt" style={{ top: "26%", left: "50%" }}>2</div>
-          <div className="pin alt" style={{ top: "44%", left: "62%" }}>3</div>
-          <div className="pin alt" style={{ top: "62%", left: "30%" }}>4</div>
-          <div className="pin alt" style={{ top: "75%", left: "58%" }}>5</div>
-          {/* path */}
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
-            <polyline points="22,20 50,28 62,46 30,64 58,77" fill="none" stroke="#0052FF" strokeWidth="0.6" strokeDasharray="2 1.5" opacity="0.6" />
-          </svg>
-        </div>
-        <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
-          <button className="m-cta line sm" style={{ flex: 1, gap: 6 }} onClick={() => {
-            const first = items.find(it => it.placeId && window.TD.getPlace(it.placeId)?.mapUrl);
-            if (first) {
-              const place = window.TD.getPlace(first.placeId);
-              window.openMapUrl(place?.mapUrl, `${place?.name || ""} ${first.placeNote || ""}`);
-            }
-          }}>
-            <LIcon name="map" size={14} />Google Maps
-          </button>
-          <button className="m-cta line sm" style={{ flex: 1 }}>경로 공유</button>
+        <div className="m-card" style={{ margin: 0 }}>
+          <div className="m-card-pad">
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 9, background: "var(--surface-neutral-10)", display: "grid", placeItems: "center", flexShrink: 0 }}>
+                <LIcon name="route" size={18} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ font: "700 14px/18px var(--font-pretendard)" }}>동선 요약</div>
+                <div style={{ marginTop: 2, font: "500 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>
+                  {firstPlace && lastPlace ? `${firstPlace.name} → ${lastPlace.name}` : "장소 정보 확인 필요"}
+                </div>
+              </div>
+              <span className="tone-chip tone-neutral">{knownPlaceStops.length}개 장소</span>
+            </div>
+            {knownPlaceStops.length > 0 && (
+              <div style={{ marginTop: 12, display: "flex", gap: 6, overflowX: "auto", paddingBottom: 2 }}>
+                {knownPlaceStops.map((place, idx) => (
+                  <button key={`${place.id}-${idx}`} type="button" onClick={() => window.openMapUrl(place.mapUrl, place.name)} style={{ flexShrink: 0, height: 30, padding: "0 10px", border: "1px solid var(--divider-10)", borderRadius: 8, background: "var(--bg-00)", font: "700 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-70)" }}>
+                    {idx + 1}. {place.name}
+                  </button>
+                ))}
+              </div>
+            )}
+            {explicitRoutes.length > 0 && (
+              <div style={{ marginTop: 10, font: "500 11px/15px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>
+                이동시간 {explicitRoutes.length}건 입력됨 · 일정 사이에 표시
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -76,9 +85,10 @@ function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay }) {
           const place = it.placeId ? window.TD.getPlace(it.placeId) : null;
           const next = items[idx + 1];
           const route = next ? window.routeBetween(date, it.id, next.id) : null;
+          const visibleRoute = route && !route.inferred ? route : null;
           return (
             <React.Fragment key={it.id}>
-              <div className="m-card" style={{ margin: 0, marginBottom: route ? 0 : 10 }}>
+              <div className="m-card" style={{ margin: 0, marginBottom: visibleRoute ? 0 : 10 }}>
                 <div className="m-card-pad">
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                     <span style={{ font: "700 13px/16px var(--font-pretendard)", fontVariantNumeric: "tabular-nums" }}>
@@ -110,7 +120,7 @@ function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay }) {
                   </div>
                 </div>
               </div>
-              {route && (
+              {visibleRoute && (
                 <div style={{
                   margin: "0 0 10px",
                   display: "flex", alignItems: "center", gap: 10,
@@ -130,10 +140,10 @@ function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay }) {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ font: "600 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-80)" }}>
-                      이동 {route.durationMin}분 · {route.distance}km
+                      이동 {visibleRoute.durationMin}분 · {visibleRoute.distance}km
                     </div>
                     <div style={{ font: "500 11px/14px var(--font-pretendard)", color: "var(--blue-700)", marginTop: 2 }}>
-                      권장 출발 {route.dep} (버퍼 {route.bufferMin}분)
+                      권장 출발 {visibleRoute.dep} (버퍼 {visibleRoute.bufferMin}분)
                     </div>
                   </div>
                 </div>
