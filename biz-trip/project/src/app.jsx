@@ -91,12 +91,14 @@ function AppToolbar({ settings, setSettings, route }) {
           options={dayOptions}
           onChange={(v) => setSettings(s => ({ ...s, day: v }))}
         />
-        <AppSelect
-          label="시각"
-          value={settings.nowHHMM}
-          options={TIME_OPTS}
-          onChange={(v) => setSettings(s => ({ ...s, nowHHMM: v }))}
-        />
+        {isShare && (
+          <AppSelect
+            label="시각"
+            value={settings.nowHHMM}
+            options={TIME_OPTS}
+            onChange={(v) => setSettings(s => ({ ...s, nowHHMM: v }))}
+          />
+        )}
       </div>
     </div>
   );

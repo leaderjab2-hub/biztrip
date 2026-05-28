@@ -14,6 +14,83 @@ function RouteModeChip({ mode }) {
   );
 }
 
+function haversineKm(a, b) {
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const r = 6371;
+  const dLat = toRad(Number(b.lat) - Number(a.lat));
+  const dLng = toRad(Number(b.lng) - Number(a.lng));
+  const lat1 = toRad(Number(a.lat));
+  const lat2 = toRad(Number(b.lat));
+  const sinLat = Math.sin(dLat / 2);
+  const sinLng = Math.sin(dLng / 2);
+  const arc = sinLat * sinLat + Math.cos(lat1) * Math.cos(lat2) * sinLng * sinLng;
+  return 2 * r * Math.atan2(Math.sqrt(arc), Math.sqrt(1 - arc));
+}
+
+function guessRouteMode(fromPlace, toPlace, existingRoute) {
+  if (existingRoute?.mode) return existingRoute.mode;
+  if (fromPlace?.lat == null || fromPlace?.lng == null || toPlace?.lat == null || toPlace?.lng == null) return "driving";
+  return haversineKm(fromPlace, toPlace) <= 1.2 ? "walking" : "driving";
+}
+
+function buildRouteCandidates(date) {
+  const items = window.TD.getDayItems(date);
+  const existingRoutes = window.TRIP_DATA.ROUTES.filter((route) => route.date === date);
+  const segments = [];
+  for (let i = 0; i < items.length - 1; i += 1) {
+    const fromSched = items[i];
+    const toSched = items[i + 1];
+    if (!fromSched.placeId || !toSched.placeId || fromSched.placeId === toSched.placeId) continue;
+    const fromPlace = window.TD.getPlace(fromSched.placeId);
+    const toPlace = window.TD.getPlace(toSched.placeId);
+    const existing = existingRoutes.find((route) => route.fromSched === fromSched.id && route.toSched === toSched.id);
+    segments.push({
+      id: existing?.id || window.localId("rte"),
+      date,
+      fromSched: fromSched.id,
+      toSched: toSched.id,
+      from: fromSched.placeId,
+      to: toSched.placeId,
+      mode: guessRouteMode(fromPlace, toPlace, existing),
+      bufferMin: existing?.bufferMin ?? 10,
+      inferred: false,
+    });
+  }
+  return segments;
+}
+
+async function getGoogleRouteMetrics(segment) {
+  const maps = await window.ensureGoogleMaps?.();
+  if (!maps?.DirectionsService || !maps?.TravelMode) {
+    throw new Error("Google Maps API가 준비되지 않았습니다.");
+  }
+  const fromPlace = window.TD.getPlace(segment.from);
+  const toPlace = window.TD.getPlace(segment.to);
+  if (!fromPlace?.lat || !fromPlace?.lng || !toPlace?.lat || !toPlace?.lng) {
+    throw new Error("장소의 위도/경도가 없어 이동시간을 계산할 수 없습니다.");
+  }
+  const service = new maps.DirectionsService();
+  const response = await service.route({
+    origin: { lat: Number(fromPlace.lat), lng: Number(fromPlace.lng) },
+    destination: { lat: Number(toPlace.lat), lng: Number(toPlace.lng) },
+    travelMode: maps.TravelMode[(segment.mode || "driving").toUpperCase()] || maps.TravelMode.DRIVING,
+    region: "TW",
+  });
+  const leg = response?.routes?.[0]?.legs?.[0];
+  if (!leg?.duration?.value || !leg?.distance?.value) {
+    throw new Error("Google 경로 결과가 비어 있습니다.");
+  }
+  const durationMin = Math.max(1, Math.round(leg.duration.value / 60));
+  const distance = Number((leg.distance.value / 1000).toFixed(1));
+  const toSched = window.TRIP_DATA.SCHEDULE.find((item) => item.id === segment.toSched);
+  return {
+    ...segment,
+    distance,
+    durationMin,
+    dep: window.minToHHMM(window.hhmmToMin(toSched.start) - durationMin - (segment.bufferMin || 0)),
+  };
+}
+
 function RouteList({ date, personFilter, onEdit }) {
   const routes = window.TD.getRoutesForDay(date, personFilter);
   if (!routes.length) {
@@ -69,12 +146,43 @@ function WebRoutes({ day = "2026-06-11", accent = "mono", onDataChanged }) {
   const [date, setDate] = useState(day);
   const [filter, setFilter] = useState("all");
   const [editor, setEditor] = useState(null);
+  const [syncState, setSyncState] = useState("");
+  const [syncBusy, setSyncBusy] = useState(false);
   useEffect(() => { setDate(day); }, [day]);
 
   const { DAYS, PEOPLE } = window.TRIP_DATA;
   const routes = window.TD.getRoutesForDay(date, filter);
   const totalMin = routes.reduce((sum, r) => sum + r.durationMin, 0);
   const totalKm = routes.reduce((sum, r) => sum + Number(r.distance || 0), 0);
+  const mapsReady = window.isGoogleMapsEnabled?.();
+  const dbReady = window.isDbEnabled?.();
+  const helperText = syncState
+    || (!dbReady ? "DB 연결이 아직 없어 이동시간 재계산 결과를 저장할 수 없습니다." : "")
+    || (!mapsReady ? "Google Maps API 키를 연결하면 일정 사이 이동시간을 실제 경로 기준으로 계산할 수 있습니다." : "")
+    || "Google Maps 장소 정보가 있는 일정은 실제 이동시간으로 다시 계산할 수 있습니다.";
+
+  async function recalcRoutes() {
+    setSyncBusy(true);
+    setSyncState("");
+    try {
+      const candidates = buildRouteCandidates(date);
+      if (!candidates.length) {
+        setSyncState("이 날짜에는 다시 계산할 이동 구간이 없습니다.");
+        return;
+      }
+      const refreshed = [];
+      for (const segment of candidates) {
+        refreshed.push(await getGoogleRouteMetrics(segment));
+      }
+      await window.replaceRoutesForDay?.(date, refreshed);
+      await onDataChanged?.();
+      setSyncState(`${refreshed.length}개 이동 구간을 Google 기준으로 업데이트했습니다.`);
+    } catch (err) {
+      setSyncState(err.message || "이동시간 계산 중 오류가 발생했습니다.");
+    } finally {
+      setSyncBusy(false);
+    }
+  }
 
   return (
     <div className={`web-frame accent-${accent}`}>
@@ -88,13 +196,16 @@ function WebRoutes({ day = "2026-06-11", accent = "mono", onDataChanged }) {
               <div style={{ font: "500 13px/18px var(--font-pretendard)", color: "var(--on-surface-neutral-50)", marginTop: 4 }}>
                 장소가 바뀌는 일정 사이의 이동 시간과 권장 출발 시간을 확인
               </div>
+              <div style={{ font: "500 12px/16px var(--font-pretendard)", color: syncState ? "var(--on-surface-neutral-70)" : "var(--on-surface-neutral-40)", marginTop: 8 }}>
+                {helperText}
+              </div>
             </div>
             <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
               <button className="adot-btn line" style={{ height: 34, padding: "0 12px", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }}>
                 <LIcon name="map" size={14} />전체 지도 열기
               </button>
-              <button className="adot-btn primary" style={{ height: 34, padding: "0 12px", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => setEditor({ item: null, defaults: { date } })}>
-                <LIcon name="plus" size={14} />구간 추가
+              <button className="adot-btn primary" style={{ height: 34, padding: "0 12px", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }} onClick={recalcRoutes} disabled={syncBusy || !mapsReady || !dbReady}>
+                <LIcon name="route" size={14} />{syncBusy ? "계산 중" : "이동시간 다시 계산"}
               </button>
             </div>
           </div>

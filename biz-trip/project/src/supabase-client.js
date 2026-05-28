@@ -297,6 +297,19 @@ async function deleteEntity(entity, id) {
   return loadTripFromSupabase();
 }
 
+async function replaceRoutesForDay(date, items) {
+  await ensureSupabaseClient();
+  if (!isDbEnabled()) throw new Error("Supabase anon key is missing.");
+  const { error: deleteError } = await biztripDb.from("route_segments").delete().eq("trip_id", BIZTRIP_ID).eq("date", date);
+  if (deleteError) throw deleteError;
+  if (items?.length) {
+    const rows = items.map((item) => toDbRow("routes", item));
+    const { error: insertError } = await biztripDb.from("route_segments").upsert(rows);
+    if (insertError) throw insertError;
+  }
+  return loadTripFromSupabase();
+}
+
 Object.assign(window, {
   BIZTRIP_SUPABASE_URL,
   BIZTRIP_SUPABASE_ANON_KEY,
@@ -309,5 +322,6 @@ Object.assign(window, {
   loadTripFromSupabase,
   upsertEntity,
   deleteEntity,
+  replaceRoutesForDay,
   localId,
 });
