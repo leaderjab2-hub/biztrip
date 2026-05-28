@@ -175,7 +175,7 @@ function MobileMeetingsOverview({ personId, onOpenMeeting }) {
     const place = sched?.placeId ? window.TD.getPlace(sched.placeId) : null;
     const day = window.TRIP_DATA.DAYS.find(item => item.date === sched?.date);
     return { id, meeting, sched, place, day };
-  }).filter(row => !row.sched || (row.sched.attendees || []).includes(personId))
+  }).filter(row => row.sched && (row.sched.attendees || []).includes(personId))
     .sort((a, b) => `${a.sched?.date || "9999"} ${a.sched?.start || "99:99"}`.localeCompare(`${b.sched?.date || "9999"} ${b.sched?.start || "99:99"}`));
 
   return (
