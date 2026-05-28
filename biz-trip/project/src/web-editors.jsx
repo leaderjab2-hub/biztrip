@@ -34,6 +34,7 @@ function editorNewItem(entity, defaults = {}) {
     type: "meeting",
     title: "",
     placeId: "pl-unknown",
+    placeNote: "",
     attendees: window.TRIP_DATA.PEOPLE.map(p => p.id),
     desc: "",
     meetingId: "",
@@ -168,10 +169,27 @@ function GooglePlaceSearch({ onPlaceSaved }) {
 }
 
 function PlacePicker({ value, onChange }) {
-  const places = Object.values(window.TRIP_DATA.PLACES).map(p => ({ value: p.id, label: p.name }));
+  const place = value ? window.TD.getPlace(value) : null;
   return (
-    <div className="place-picker">
-      <SelectInput value={value} onChange={onChange} options={[{ value: "", label: "장소 없음" }, ...places]} />
+    <div className="place-picker" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {place ? (
+        <div style={{ border: "1px solid var(--divider-10)", borderRadius: 12, padding: "12px 14px", background: "var(--surface-neutral-0)", display: "flex", alignItems: "flex-start", gap: 10 }}>
+          <div style={{ width: 28, height: 28, borderRadius: 9999, background: "var(--surface-neutral-10)", display: "grid", placeItems: "center", flexShrink: 0 }}>
+            <LIcon name="map-pin" size={14} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ font: "600 13px/18px var(--font-pretendard)" }}>{place.name}</div>
+            {place.address && <div style={{ font: "500 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-50)", marginTop: 2 }}>{place.address}</div>}
+          </div>
+          <button type="button" className="adot-btn line" style={{ height: 30, padding: "0 10px", fontSize: 12, flexShrink: 0 }} onClick={() => onChange("")}>
+            지우기
+          </button>
+        </div>
+      ) : (
+        <div style={{ border: "1px dashed var(--divider-20)", borderRadius: 12, padding: "12px 14px", font: "500 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>
+          아직 선택된 장소가 없습니다.
+        </div>
+      )}
       <GooglePlaceSearch onPlaceSaved={(place) => onChange(place.id)} />
     </div>
   );
@@ -236,6 +254,7 @@ function EntityForm({ entity, draft, setDraft }) {
         <FormField label="종료"><TextInput type="time" value={draft.end} onChange={v => update("end", v)} /></FormField>
         <FormField label="제목" wide><TextInput value={draft.title} onChange={v => update("title", v)} /></FormField>
         <FormField label="장소" wide><PlacePicker value={draft.placeId} onChange={v => update("placeId", v)} /></FormField>
+        <FormField label="상세 위치" wide><TextInput value={draft.placeNote} onChange={v => update("placeNote", v)} placeholder="예: 3층 Ballroom 앞, Hall 2 Booth R0302, 북문 Gate B" /></FormField>
         <FormField label="설명" wide><TextAreaInput rows={3} value={draft.desc} onChange={v => update("desc", v)} /></FormField>
         <FormField label="참석자" wide><AttendeePicker value={draft.attendees} onChange={v => update("attendees", v)} /></FormField>
       </div>
@@ -295,7 +314,7 @@ function EntityForm({ entity, draft, setDraft }) {
       <div className="form-grid">
         <FormField label="행사명" wide><TextInput value={draft.name} onChange={v => update("name", v)} /></FormField>
         <FormField label="주최"><TextInput value={draft.host} onChange={v => update("host", v)} /></FormField>
-        <FormField label="장소"><SelectInput value={draft.placeId} onChange={v => update("placeId", v)} options={places} /></FormField>
+        <FormField label="장소" wide><PlacePicker value={draft.placeId} onChange={v => update("placeId", v)} /></FormField>
         <FormField label="시작일"><TextInput type="date" value={draft.start} onChange={v => update("start", v)} /></FormField>
         <FormField label="종료일"><TextInput type="date" value={draft.end} onChange={v => update("end", v)} /></FormField>
         <FormField label="드레스코드"><TextInput value={draft.dressCode} onChange={v => update("dressCode", v)} /></FormField>

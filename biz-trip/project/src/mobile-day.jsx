@@ -88,6 +88,11 @@ function MobileDay({ personId = "p-ceo", date = "2026-06-11" }) {
                       {place.name}
                     </div>
                   )}
+                  {it.placeNote && (
+                    <div style={{ font: "500 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-60)", marginTop: 4 }}>
+                      {it.placeNote}
+                    </div>
+                  )}
                   <div style={{ font: "500 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-50)", marginTop: 4 }}>{it.desc}</div>
                   <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <AvatarStack ids={it.attendees} size="sm" max={5} />

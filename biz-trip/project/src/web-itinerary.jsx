@@ -127,6 +127,7 @@ function ItineraryTable({ date, personFilter, onEdit }) {
                 {place ? (
                   <>
                     <div className="place">{place.name}</div>
+                    {it.placeNote ? <div className="placeAddr" style={{ color: "var(--on-surface-neutral-70)" }}>{it.placeNote}</div> : null}
                     <div className="placeAddr">{place.address}</div>
                   </>
                 ) : <span style={{ color: "var(--on-surface-neutral-50)", fontSize: 12 }}>—</span>}

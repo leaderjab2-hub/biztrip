@@ -110,6 +110,10 @@ function mapFlight(row) {
 }
 
 function mapSchedule(row) {
+  const description = String(row.description || "");
+  const match = description.match(/\[\[PLACE_NOTE\]\]([\s\S]*?)\[\[\/PLACE_NOTE\]\]/);
+  const placeNote = match ? match[1].trim() : "";
+  const desc = description.replace(/\[\[PLACE_NOTE\]\][\s\S]*?\[\[\/PLACE_NOTE\]\]\s*/g, "").trim();
   return {
     id: row.id,
     date: row.date,
@@ -119,7 +123,8 @@ function mapSchedule(row) {
     title: row.title,
     placeId: row.place_id,
     attendees: row.attendees || [],
-    desc: row.description,
+    desc,
+    placeNote,
     meetingId: row.meeting_id,
     eventId: row.event_id,
     bufferMin: row.buffer_min,
@@ -271,7 +276,11 @@ function toDbRow(entity, item) {
   if (entity === "places") return { id: item.id, trip_id: BIZTRIP_ID, name: item.name, address: item.address, lat: item.lat, lng: item.lng, external_place_id: item.externalPlaceId, map_url: item.mapUrl };
   if (entity === "flights") return { id: item.id, trip_id: BIZTRIP_ID, type: item.type, airline: item.airline, flight_number: item.flightNumber, dep: item.dep || {}, arr: item.arr || {}, duration_min: item.durationMin || 0, passengers: item.passengers || [], booking_ref: item.bookingRef, memo: item.memo };
   if (entity === "hotels") return { id: item.id, trip_id: BIZTRIP_ID, name: item.name, address: item.address, checkin: item.checkin, checkout: item.checkout, booking_ref: item.bookingRef, breakfast: Boolean(item.breakfast), guests: item.guests || [], memo: item.memo };
-  if (entity === "schedule") return { id: item.id, trip_id: BIZTRIP_ID, date: item.date, start_time: item.start, end_time: item.end, type: item.type, title: item.title, place_id: item.placeId, attendees: item.attendees || [], description: item.desc, meeting_id: item.meetingId, event_id: item.eventId, buffer_min: item.bufferMin || 10 };
+  if (entity === "schedule") {
+    const placeBlock = item.placeNote ? `[[PLACE_NOTE]]${String(item.placeNote).trim()}[[/PLACE_NOTE]]` : "";
+    const description = [placeBlock, item.desc || ""].filter(Boolean).join("\n\n").trim();
+    return { id: item.id, trip_id: BIZTRIP_ID, date: item.date, start_time: item.start, end_time: item.end, type: item.type, title: item.title, place_id: item.placeId, attendees: item.attendees || [], description, meeting_id: item.meetingId, event_id: item.eventId, buffer_min: item.bufferMin || 10 };
+  }
   if (entity === "meetings") return { id: item.id, trip_id: BIZTRIP_ID, name: item.name, counterpart: item.counterpart, counterpart_people: item.counterpartPeople || [], objective: item.objective, agenda: item.agenda || [], talking_points: item.talkingPoints || [], cautions: item.cautions || [], follow_ups: item.followUps || [], memo: item.memo };
   if (entity === "events") return { id: item.id, trip_id: BIZTRIP_ID, name: item.name, host: item.host, place_id: item.placeId, start_date: item.start, end_date: item.end, purpose: item.purpose, dress_code: item.dressCode, sessions: item.sessions || [], memo: item.memo };
   if (entity === "routes") return { id: item.id, trip_id: BIZTRIP_ID, date: item.date, from_sched: item.fromSched, to_sched: item.toSched, from_place: item.from, to_place: item.to, mode: item.mode, distance: item.distance, duration_min: item.durationMin, buffer_min: item.bufferMin, dep: item.dep, inferred: item.inferred || false };

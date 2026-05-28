@@ -134,7 +134,7 @@ function WebMeeting({ meetingId = "m-smci-exec", accent = "mono", onDataChanged 
                   <LIcon name="building-2" size={14} />{meeting.counterpart}
                 </span>
                 <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-                  <LIcon name="map-pin" size={14} />{place?.name}
+                  <LIcon name="map-pin" size={14} />{place?.name}{sched?.placeNote ? ` · ${sched.placeNote}` : ""}
                 </span>
               </div>
             </div>

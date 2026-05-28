@@ -69,6 +69,11 @@ function MobileToday({ personId = "p-ceo", date = "2026-06-11", nowHHMM = "10:42
                   {heroPlace.name}
                 </div>
               )}
+              {heroItem.placeNote && (
+                <div style={{ font: "500 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-60)", marginTop: 4 }}>
+                  {heroItem.placeNote}
+                </div>
+              )}
               <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
                 <AvatarStack ids={heroItem.attendees} size="sm" max={4} />
                 <span style={{ font: "500 12px/22px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>
@@ -157,6 +162,7 @@ function MobileToday({ personId = "p-ceo", date = "2026-06-11", nowHHMM = "10:42
                   <div className="m-row-meta">
                     <TypeChip type={it.type} />
                     {place && <span>{place.name}</span>}
+                    {it.placeNote && <span>{it.placeNote}</span>}
                   </div>
                 </div>
               </div>
