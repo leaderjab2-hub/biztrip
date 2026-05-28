@@ -99,6 +99,84 @@ function AttendeePicker({ value, onChange }) {
   );
 }
 
+function googlePlaceToItem(place) {
+  const placeId = place.place_id || "";
+  const slug = placeId
+    ? placeId.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 42)
+    : (place.name || "place").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 42);
+  const loc = place.geometry?.location;
+  return {
+    id: `pl-g-${slug || Date.now()}`,
+    name: place.name || "새 장소",
+    address: place.formatted_address || "",
+    lat: loc ? loc.lat() : null,
+    lng: loc ? loc.lng() : null,
+    externalPlaceId: placeId,
+    mapUrl: place.url || (placeId ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name || "")}&query_place_id=${encodeURIComponent(placeId)}` : ""),
+  };
+}
+
+function GooglePlaceSearch({ onPlaceSaved }) {
+  const inputRef = React.useRef(null);
+  const autocompleteRef = React.useRef(null);
+  const [status, setStatus] = useState(window.isGoogleMapsEnabled?.() ? "Google 장소 검색 준비 중" : "Google Maps API 키 필요");
+
+  React.useEffect(() => {
+    let mounted = true;
+    async function boot() {
+      const maps = await window.ensureGoogleMaps?.();
+      if (!mounted) return;
+      if (!maps?.places) {
+        setStatus("Google Maps API 키를 Vercel 환경변수에 넣으면 검색이 켜집니다.");
+        return;
+      }
+      autocompleteRef.current = new maps.places.Autocomplete(inputRef.current, {
+        fields: ["place_id", "name", "formatted_address", "geometry", "url"],
+        componentRestrictions: { country: ["tw", "kr"] },
+      });
+      autocompleteRef.current.addListener("place_changed", async () => {
+        const place = autocompleteRef.current.getPlace();
+        if (!place?.place_id) {
+          setStatus("검색 결과에서 장소를 선택해 주세요.");
+          return;
+        }
+        const item = googlePlaceToItem(place);
+        setStatus("장소 저장 중");
+        try {
+          if (window.isDbEnabled?.()) await window.upsertEntity("places", item);
+          onPlaceSaved(item);
+          setStatus(`${item.name} 저장됨`);
+        } catch (err) {
+          setStatus(err.message || "장소 저장 실패");
+        }
+      });
+      setStatus("장소명을 검색하세요.");
+    }
+    boot();
+    return () => { mounted = false; };
+  }, []);
+
+  return (
+    <div className="google-place-search">
+      <div className="google-place-input">
+        <LIcon name="search" size={14} />
+        <input ref={inputRef} placeholder="Google Maps에서 장소 검색" disabled={!window.isGoogleMapsEnabled?.()} />
+      </div>
+      <div className="google-place-status">{status}</div>
+    </div>
+  );
+}
+
+function PlacePicker({ value, onChange }) {
+  const places = Object.values(window.TRIP_DATA.PLACES).map(p => ({ value: p.id, label: p.name }));
+  return (
+    <div className="place-picker">
+      <SelectInput value={value} onChange={onChange} options={[{ value: "", label: "장소 없음" }, ...places]} />
+      <GooglePlaceSearch onPlaceSaved={(place) => onChange(place.id)} />
+    </div>
+  );
+}
+
 function FormActions({ busy, canDelete, onCancel, onDelete, disabled }) {
   return (
     <div className="form-actions">
@@ -157,7 +235,7 @@ function EntityForm({ entity, draft, setDraft }) {
         <FormField label="시작"><TextInput type="time" value={draft.start} onChange={v => update("start", v)} /></FormField>
         <FormField label="종료"><TextInput type="time" value={draft.end} onChange={v => update("end", v)} /></FormField>
         <FormField label="제목" wide><TextInput value={draft.title} onChange={v => update("title", v)} /></FormField>
-        <FormField label="장소" wide><SelectInput value={draft.placeId} onChange={v => update("placeId", v)} options={[{ value: "", label: "장소 없음" }, ...places]} /></FormField>
+        <FormField label="장소" wide><PlacePicker value={draft.placeId} onChange={v => update("placeId", v)} /></FormField>
         <FormField label="설명" wide><TextAreaInput rows={3} value={draft.desc} onChange={v => update("desc", v)} /></FormField>
         <FormField label="참석자" wide><AttendeePicker value={draft.attendees} onChange={v => update("attendees", v)} /></FormField>
       </div>

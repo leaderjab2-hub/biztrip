@@ -3,7 +3,9 @@
 
 let BIZTRIP_SUPABASE_URL = window.BIZTRIP_SUPABASE_URL || "https://apfbqpembzexbphpbvyv.supabase.co";
 let BIZTRIP_SUPABASE_ANON_KEY = window.BIZTRIP_SUPABASE_ANON_KEY || "";
+let BIZTRIP_GOOGLE_MAPS_API_KEY = window.BIZTRIP_GOOGLE_MAPS_API_KEY || "";
 const BIZTRIP_ID = "trip-computex-2026";
+let googleMapsLoader = null;
 
 function createBiztripSupabase() {
   if (!BIZTRIP_SUPABASE_ANON_KEY || !window.supabase?.createClient) return null;
@@ -20,8 +22,10 @@ async function ensureSupabaseClient() {
       const cfg = await res.json();
       BIZTRIP_SUPABASE_URL = cfg.supabaseUrl || BIZTRIP_SUPABASE_URL;
       BIZTRIP_SUPABASE_ANON_KEY = cfg.supabaseAnonKey || BIZTRIP_SUPABASE_ANON_KEY;
+      BIZTRIP_GOOGLE_MAPS_API_KEY = cfg.googleMapsApiKey || BIZTRIP_GOOGLE_MAPS_API_KEY;
       window.BIZTRIP_SUPABASE_URL = BIZTRIP_SUPABASE_URL;
       window.BIZTRIP_SUPABASE_ANON_KEY = BIZTRIP_SUPABASE_ANON_KEY;
+      window.BIZTRIP_GOOGLE_MAPS_API_KEY = BIZTRIP_GOOGLE_MAPS_API_KEY;
       biztripDb = createBiztripSupabase();
       window.biztripDb = biztripDb;
     }
@@ -33,6 +37,29 @@ async function ensureSupabaseClient() {
 
 function isDbEnabled() {
   return Boolean(biztripDb);
+}
+
+function isGoogleMapsEnabled() {
+  return Boolean(BIZTRIP_GOOGLE_MAPS_API_KEY || window.BIZTRIP_GOOGLE_MAPS_API_KEY);
+}
+
+async function ensureGoogleMaps() {
+  await ensureSupabaseClient();
+  if (window.google?.maps?.places) return window.google.maps;
+  const key = BIZTRIP_GOOGLE_MAPS_API_KEY || window.BIZTRIP_GOOGLE_MAPS_API_KEY;
+  if (!key) return null;
+  if (!googleMapsLoader) {
+    googleMapsLoader = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&libraries=places&language=ko&region=TW`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve(window.google?.maps || null);
+      script.onerror = () => reject(new Error("Google Maps API를 불러오지 못했습니다."));
+      document.head.appendChild(script);
+    });
+  }
+  return googleMapsLoader;
 }
 
 function mapTrip(row) {
@@ -273,9 +300,12 @@ async function deleteEntity(entity, id) {
 Object.assign(window, {
   BIZTRIP_SUPABASE_URL,
   BIZTRIP_SUPABASE_ANON_KEY,
+  BIZTRIP_GOOGLE_MAPS_API_KEY,
   biztripDb,
   ensureSupabaseClient,
+  ensureGoogleMaps,
   isDbEnabled,
+  isGoogleMapsEnabled,
   loadTripFromSupabase,
   upsertEntity,
   deleteEntity,

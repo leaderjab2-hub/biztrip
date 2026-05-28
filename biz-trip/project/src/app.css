@@ -399,6 +399,39 @@ html, body {
   background: var(--on-surface-neutral-100);
   color: #fff;
 }
+.place-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.google-place-search {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.google-place-input {
+  height: 38px;
+  border: 1px solid var(--divider-20);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  background: var(--surface-neutral-10);
+}
+.google-place-input input {
+  height: 34px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+.google-place-input input:disabled {
+  color: var(--on-surface-neutral-40);
+}
+.google-place-status {
+  font: 500 11px/14px var(--font-pretendard);
+  color: var(--on-surface-neutral-50);
+}
 .form-alert,
 .form-error {
   margin: 14px 20px 0;
