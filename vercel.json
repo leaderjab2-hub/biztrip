@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/biz-trip/project/$1"
+    }
+  ]
+}
