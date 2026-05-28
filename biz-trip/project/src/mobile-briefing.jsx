@@ -53,6 +53,7 @@ function MobileBriefing({ personId = "p-ceo" }) {
                 <div style={{ font: "700 22px/26px var(--font-pretendard)", fontVariantNumeric: "tabular-nums" }}>{f.dep.time.slice(11)}</div>
                 <div style={{ font: "600 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-60)" }}>{f.dep.airport}</div>
                 <div style={{ font: "500 10px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>{f.dep.city}</div>
+                {f.dep?.mapUrl && <button type="button" onClick={() => window.openMapUrl(f.dep.mapUrl, f.dep.airport)} style={{ marginTop: 6, padding: 0, border: 0, background: "transparent", color: "var(--blue-700)", font: "600 11px/14px var(--font-pretendard)" }}>지도 열기</button>}
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <div style={{ font: "500 10px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-50)", fontVariantNumeric: "tabular-nums" }}>
@@ -71,6 +72,7 @@ function MobileBriefing({ personId = "p-ceo" }) {
                 <div style={{ font: "700 22px/26px var(--font-pretendard)", fontVariantNumeric: "tabular-nums" }}>{f.arr.time.slice(11)}</div>
                 <div style={{ font: "600 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-60)" }}>{f.arr.airport}</div>
                 <div style={{ font: "500 10px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>{f.arr.city}</div>
+                {f.arr?.mapUrl && <button type="button" onClick={() => window.openMapUrl(f.arr.mapUrl, f.arr.airport)} style={{ marginTop: 6, padding: 0, border: 0, background: "transparent", color: "var(--blue-700)", font: "600 11px/14px var(--font-pretendard)" }}>지도 열기</button>}
               </div>
             </div>
           </div>
@@ -90,6 +92,7 @@ function MobileBriefing({ personId = "p-ceo" }) {
               <div style={{ font: "500 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-50)", marginTop: 2 }}>
                 {HOTEL.address}
               </div>
+              {HOTEL.locationNote && <div style={{ font: "500 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-60)", marginTop: 4 }}>{HOTEL.locationNote}</div>}
             </div>
           </div>
           <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -110,6 +113,7 @@ function MobileBriefing({ personId = "p-ceo" }) {
               </div>
             </div>
           )}
+          {HOTEL.mapUrl && <button type="button" onClick={() => window.openMapUrl(HOTEL.mapUrl, HOTEL.name)} style={{ marginTop: 10, padding: 0, border: 0, background: "transparent", color: "var(--blue-700)", font: "600 12px/16px var(--font-pretendard)" }}>Google Maps에서 열기</button>}
         </div>
       </div>
 

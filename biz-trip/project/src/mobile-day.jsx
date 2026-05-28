@@ -57,7 +57,13 @@ function MobileDay({ personId = "p-ceo", date = "2026-06-11" }) {
           </svg>
         </div>
         <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
-          <button className="m-cta line sm" style={{ flex: 1, gap: 6 }}>
+          <button className="m-cta line sm" style={{ flex: 1, gap: 6 }} onClick={() => {
+            const first = items.find(it => it.placeId && window.TD.getPlace(it.placeId)?.mapUrl);
+            if (first) {
+              const place = window.TD.getPlace(first.placeId);
+              window.openMapUrl(place?.mapUrl, `${place?.name || ""} ${first.placeNote || ""}`);
+            }
+          }}>
             <LIcon name="map" size={14} />Google Maps
           </button>
           <button className="m-cta line sm" style={{ flex: 1 }}>경로 공유</button>
@@ -83,10 +89,10 @@ function MobileDay({ personId = "p-ceo", date = "2026-06-11" }) {
                   </div>
                   <div style={{ font: "600 15px/20px var(--font-pretendard)" }}>{it.title}</div>
                   {place && (
-                    <div style={{ font: "500 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-60)", marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
+                    <button type="button" onClick={() => window.openMapUrl(place.mapUrl, `${place.name} ${it.placeNote || ""}`)} style={{ font: "500 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-60)", marginTop: 4, display: "flex", alignItems: "center", gap: 4, padding: 0, border: 0, background: "transparent", cursor: place.mapUrl ? "pointer" : "default" }}>
                       <LIcon name="map-pin" size={12} color="var(--on-surface-neutral-50)" />
                       {place.name}
-                    </div>
+                    </button>
                   )}
                   {it.placeNote && (
                     <div style={{ font: "500 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-60)", marginTop: 4 }}>

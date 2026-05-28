@@ -84,7 +84,25 @@ function routeBetween(date, fromSched, toSched) {
     || window.TD.getRoutesForDay(date).find(r => r.fromSched === fromSched && r.toSched === toSched);
 }
 
+function buildGoogleMapsSearchUrl(query) {
+  const text = String(query || "").trim();
+  if (!text) return "";
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(text)}`;
+}
+
+function normalizeMapUrl(url, fallbackQuery) {
+  const text = String(url || "").trim();
+  return text || buildGoogleMapsSearchUrl(fallbackQuery);
+}
+
+function openMapUrl(url, fallbackQuery) {
+  const target = normalizeMapUrl(url, fallbackQuery);
+  if (!target) return;
+  window.open(target, "_blank", "noopener,noreferrer");
+}
+
 Object.assign(window, {
   LIcon, Avatar, AvatarStack, TypeChip, StatusChip,
   nextUpFor, currentFor, hhmmToMin, minToHHMM, diffMin, routeBetween,
+  buildGoogleMapsSearchUrl, normalizeMapUrl, openMapUrl,
 });

@@ -224,15 +224,10 @@ function WebMeeting({ meetingId = "m-smci-exec", accent = "mono", onDataChanged 
                   <>
                     <div style={{ font: "600 14px/18px var(--font-pretendard)" }}>{place.name}</div>
                     <div style={{ font: "500 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-50)", marginTop: 2 }}>{place.address}</div>
-                    <div className="map-tile" style={{ marginTop: 10, height: 130 }}>
-                      <div className="road" style={{ top: "55%", transform: "rotate(8deg)" }} />
-                      <div className="pin" style={{ top: "42%", left: "48%" }}>📍</div>
-                    </div>
                     <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-                      <button className="adot-btn line" style={{ height: 30, padding: "0 10px", fontSize: 12, flex: 1, gap: 6, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                      <button className="adot-btn line" style={{ height: 30, padding: "0 10px", fontSize: 12, flex: 1, gap: 6, display: "inline-flex", alignItems: "center", justifyContent: "center" }} onClick={() => window.openMapUrl(place.mapUrl, `${place.name} ${sched?.placeNote || ""}`)}>
                         <LIcon name="map" size={12} />Google Maps
                       </button>
-                      <button className="adot-btn line" style={{ height: 30, padding: "0 10px", fontSize: 12, flex: 1 }}>거리뷰</button>
                     </div>
                   </>
                 )}

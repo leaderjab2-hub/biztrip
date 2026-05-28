@@ -126,7 +126,9 @@ function ItineraryTable({ date, personFilter, onEdit }) {
               <td>
                 {place ? (
                   <>
-                    <div className="place">{place.name}</div>
+                    <button type="button" style={{ font: "600 13px/18px var(--font-pretendard)", padding: 0, border: 0, background: "transparent", textAlign: "left", cursor: place.mapUrl ? "pointer" : "default" }} onClick={() => place.mapUrl && window.openMapUrl(place.mapUrl, `${place.name} ${it.placeNote || ""}`)}>
+                      {place.name}
+                    </button>
                     {it.placeNote ? <div className="placeAddr" style={{ color: "var(--on-surface-neutral-70)" }}>{it.placeNote}</div> : null}
                     <div className="placeAddr">{place.address}</div>
                   </>

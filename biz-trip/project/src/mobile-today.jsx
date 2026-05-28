@@ -64,10 +64,10 @@ function MobileToday({ personId = "p-ceo", date = "2026-06-11", nowHHMM = "10:42
               </div>
               <div style={{ font: "700 20px/26px var(--font-pretendard)", letterSpacing: "-0.02em" }}>{heroItem.title}</div>
               {heroPlace && (
-                <div style={{ font: "500 13px/18px var(--font-pretendard)", color: "var(--on-surface-neutral-60)", marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
+                <button type="button" onClick={() => window.openMapUrl(heroPlace.mapUrl, `${heroPlace.name} ${heroItem.placeNote || ""}`)} style={{ font: "500 13px/18px var(--font-pretendard)", color: "var(--on-surface-neutral-60)", marginTop: 4, display: "flex", alignItems: "center", gap: 4, padding: 0, border: 0, background: "transparent", cursor: heroPlace.mapUrl ? "pointer" : "default" }}>
                   <LIcon name="map-pin" size={12} color="var(--on-surface-neutral-60)" />
                   {heroPlace.name}
-                </div>
+                </button>
               )}
               {heroItem.placeNote && (
                 <div style={{ font: "500 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-60)", marginTop: 4 }}>
@@ -102,7 +102,7 @@ function MobileToday({ personId = "p-ceo", date = "2026-06-11", nowHHMM = "10:42
               )}
 
               <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
-                <button className="m-cta sm" style={{ flex: 1, gap: 6 }}>
+                <button className="m-cta sm" style={{ flex: 1, gap: 6 }} onClick={() => heroPlace && window.openMapUrl(heroPlace.mapUrl, `${heroPlace.name} ${heroItem.placeNote || ""}`)}>
                   <LIcon name="map" size={14} color="#fff" />지도 열기
                 </button>
                 {heroItem.type === "meeting" && (

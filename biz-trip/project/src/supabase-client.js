@@ -3,9 +3,7 @@
 
 let BIZTRIP_SUPABASE_URL = window.BIZTRIP_SUPABASE_URL || "https://apfbqpembzexbphpbvyv.supabase.co";
 let BIZTRIP_SUPABASE_ANON_KEY = window.BIZTRIP_SUPABASE_ANON_KEY || "";
-let BIZTRIP_GOOGLE_MAPS_API_KEY = window.BIZTRIP_GOOGLE_MAPS_API_KEY || "";
 const BIZTRIP_ID = "trip-computex-2026";
-let googleMapsLoader = null;
 
 function createBiztripSupabase() {
   if (!BIZTRIP_SUPABASE_ANON_KEY || !window.supabase?.createClient) return null;
@@ -22,10 +20,8 @@ async function ensureSupabaseClient() {
       const cfg = await res.json();
       BIZTRIP_SUPABASE_URL = cfg.supabaseUrl || BIZTRIP_SUPABASE_URL;
       BIZTRIP_SUPABASE_ANON_KEY = cfg.supabaseAnonKey || BIZTRIP_SUPABASE_ANON_KEY;
-      BIZTRIP_GOOGLE_MAPS_API_KEY = cfg.googleMapsApiKey || BIZTRIP_GOOGLE_MAPS_API_KEY;
       window.BIZTRIP_SUPABASE_URL = BIZTRIP_SUPABASE_URL;
       window.BIZTRIP_SUPABASE_ANON_KEY = BIZTRIP_SUPABASE_ANON_KEY;
-      window.BIZTRIP_GOOGLE_MAPS_API_KEY = BIZTRIP_GOOGLE_MAPS_API_KEY;
       biztripDb = createBiztripSupabase();
       window.biztripDb = biztripDb;
     }
@@ -37,29 +33,6 @@ async function ensureSupabaseClient() {
 
 function isDbEnabled() {
   return Boolean(biztripDb);
-}
-
-function isGoogleMapsEnabled() {
-  return Boolean(BIZTRIP_GOOGLE_MAPS_API_KEY || window.BIZTRIP_GOOGLE_MAPS_API_KEY);
-}
-
-async function ensureGoogleMaps() {
-  await ensureSupabaseClient();
-  if (window.google?.maps?.places) return window.google.maps;
-  const key = BIZTRIP_GOOGLE_MAPS_API_KEY || window.BIZTRIP_GOOGLE_MAPS_API_KEY;
-  if (!key) return null;
-  if (!googleMapsLoader) {
-    googleMapsLoader = new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&libraries=places&language=ko&region=TW`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => resolve(window.google?.maps || null);
-      script.onerror = () => reject(new Error("Google Maps API를 불러오지 못했습니다."));
-      document.head.appendChild(script);
-    });
-  }
-  return googleMapsLoader;
 }
 
 function mapTrip(row) {
@@ -106,6 +79,19 @@ function mapFlight(row) {
     passengers: row.passengers || [],
     bookingRef: row.booking_ref,
     memo: row.memo,
+  };
+}
+
+function parseEmbeddedMeta(text) {
+  const source = String(text || "");
+  const pick = (tag) => {
+    const match = source.match(new RegExp(`\\[\\[${tag}\\]\\]([\\s\\S]*?)\\[\\[\\/${tag}\\]\\]`));
+    return match ? match[1].trim() : "";
+  };
+  return {
+    mapUrl: pick("MAP_URL"),
+    locationNote: pick("LOCATION_NOTE"),
+    body: source.replace(/\[\[(MAP_URL|LOCATION_NOTE)\]\][\s\S]*?\[\[\/\1\]\]\s*/g, "").trim(),
   };
 }
 
@@ -233,17 +219,22 @@ async function loadTripFromSupabase() {
     TRIP: mapTrip(trip),
     PEOPLE: people.map(mapPerson),
     FLIGHTS: flights.map(mapFlight),
-    HOTEL: hotels[0] ? {
-      id: hotels[0].id,
-      name: hotels[0].name,
-      address: hotels[0].address,
-      checkin: hotels[0].checkin,
-      checkout: hotels[0].checkout,
-      bookingRef: hotels[0].booking_ref,
-      breakfast: hotels[0].breakfast,
-      guests: hotels[0].guests || [],
-      memo: hotels[0].memo,
-    } : window.TRIP_DATA.HOTEL,
+    HOTEL: hotels[0] ? (() => {
+      const parsed = parseEmbeddedMeta(hotels[0].memo);
+      return {
+        id: hotels[0].id,
+        name: hotels[0].name,
+        address: hotels[0].address,
+        checkin: hotels[0].checkin,
+        checkout: hotels[0].checkout,
+        bookingRef: hotels[0].booking_ref,
+        breakfast: hotels[0].breakfast,
+        guests: hotels[0].guests || [],
+        memo: parsed.body,
+        mapUrl: parsed.mapUrl,
+        locationNote: parsed.locationNote,
+      };
+    })() : window.TRIP_DATA.HOTEL,
     PLACES: mappedPlaces,
     DAYS: days.map(d => ({ date: d.date, label: d.label, title: d.title, weekday: d.weekday })),
     SCHEDULE: schedule.map(mapSchedule),
@@ -275,7 +266,14 @@ function toDbRow(entity, item) {
   if (entity === "people") return { ...item, trip_id: BIZTRIP_ID };
   if (entity === "places") return { id: item.id, trip_id: BIZTRIP_ID, name: item.name, address: item.address, lat: item.lat, lng: item.lng, external_place_id: item.externalPlaceId, map_url: item.mapUrl };
   if (entity === "flights") return { id: item.id, trip_id: BIZTRIP_ID, type: item.type, airline: item.airline, flight_number: item.flightNumber, dep: item.dep || {}, arr: item.arr || {}, duration_min: item.durationMin || 0, passengers: item.passengers || [], booking_ref: item.bookingRef, memo: item.memo };
-  if (entity === "hotels") return { id: item.id, trip_id: BIZTRIP_ID, name: item.name, address: item.address, checkin: item.checkin, checkout: item.checkout, booking_ref: item.bookingRef, breakfast: Boolean(item.breakfast), guests: item.guests || [], memo: item.memo };
+  if (entity === "hotels") {
+    const memo = [
+      item.mapUrl ? `[[MAP_URL]]${String(item.mapUrl).trim()}[[/MAP_URL]]` : "",
+      item.locationNote ? `[[LOCATION_NOTE]]${String(item.locationNote).trim()}[[/LOCATION_NOTE]]` : "",
+      item.memo || "",
+    ].filter(Boolean).join("\n\n").trim();
+    return { id: item.id, trip_id: BIZTRIP_ID, name: item.name, address: item.address, checkin: item.checkin, checkout: item.checkout, booking_ref: item.bookingRef, breakfast: Boolean(item.breakfast), guests: item.guests || [], memo };
+  }
   if (entity === "schedule") {
     const placeBlock = item.placeNote ? `[[PLACE_NOTE]]${String(item.placeNote).trim()}[[/PLACE_NOTE]]` : "";
     const description = [placeBlock, item.desc || ""].filter(Boolean).join("\n\n").trim();
@@ -322,12 +320,9 @@ async function replaceRoutesForDay(date, items) {
 Object.assign(window, {
   BIZTRIP_SUPABASE_URL,
   BIZTRIP_SUPABASE_ANON_KEY,
-  BIZTRIP_GOOGLE_MAPS_API_KEY,
   biztripDb,
   ensureSupabaseClient,
-  ensureGoogleMaps,
   isDbEnabled,
-  isGoogleMapsEnabled,
   loadTripFromSupabase,
   upsertEntity,
   deleteEntity,

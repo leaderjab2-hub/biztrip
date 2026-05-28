@@ -11,18 +11,10 @@ export default function handler(req, res) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     "";
 
-  const googleMapsApiKey =
-    process.env.BIZTRIP_GOOGLE_MAPS_API_KEY ||
-    process.env.GOOGLE_MAPS_API_KEY ||
-    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
-    "";
-
   res.setHeader("Cache-Control", "no-store");
   res.status(200).json({
     supabaseUrl,
     supabaseAnonKey,
-    googleMapsApiKey,
     hasSupabaseAnonKey: Boolean(supabaseAnonKey),
-    hasGoogleMapsApiKey: Boolean(googleMapsApiKey),
   });
 }

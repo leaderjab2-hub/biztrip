@@ -312,7 +312,7 @@ function WebCollectionPage({ kind, accent = "mono", onDataChanged }) {
       render: (f) => ({
         title: `${f.airline} ${f.flightNumber}`,
         meta: `${f.type === "outbound" ? "출국" : "귀국"} · ${f.dep?.airport || ""} → ${f.arr?.airport || ""}`,
-        body: `${f.dep?.time || ""} → ${f.arr?.time || ""} · 탑승 ${f.passengers?.length || 0}명`,
+        body: `${f.dep?.time || ""} → ${f.arr?.time || ""} · 탑승 ${f.passengers?.length || 0}명${f.dep?.mapUrl || f.arr?.mapUrl ? " · 지도 링크 포함" : ""}`,
         avatar: <div className="collection-icon"><LIcon name={f.type === "outbound" ? "plane-takeoff" : "plane-landing"} size={17} /></div>,
       }),
     },
@@ -327,7 +327,7 @@ function WebCollectionPage({ kind, accent = "mono", onDataChanged }) {
       render: (h) => ({
         title: h.name,
         meta: `${h.checkin || ""} → ${h.checkout || ""}`,
-        body: `${h.address || "주소 없음"} · 투숙 ${h.guests?.length || 0}명`,
+        body: `${h.address || "주소 없음"}${h.locationNote ? ` · ${h.locationNote}` : ""} · 투숙 ${h.guests?.length || 0}명`,
         avatar: <div className="collection-icon"><LIcon name="bed-double" size={17} /></div>,
       }),
     },

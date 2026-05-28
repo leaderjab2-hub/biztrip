@@ -33,7 +33,9 @@ function editorNewItem(entity, defaults = {}) {
     end: "10:00",
     type: "meeting",
     title: "",
-    placeId: "pl-unknown",
+    placeId: "",
+    placeName: "",
+    placeMapUrl: "",
     placeNote: "",
     attendees: window.TRIP_DATA.PEOPLE.map(p => p.id),
     desc: "",
@@ -43,10 +45,10 @@ function editorNewItem(entity, defaults = {}) {
     ...defaults,
   };
   if (entity === "meetings") return { id, name: "", counterpart: "", counterpartPeople: [], objective: "", agenda: [], talkingPoints: [], cautions: [], followUps: [], memo: "", ...defaults };
-  if (entity === "flights") return { id, type: "outbound", airline: "", flightNumber: "", dep: { airport: "", time: "" }, arr: { airport: "", time: "" }, durationMin: 0, passengers: window.TRIP_DATA.PEOPLE.map(p => p.id), bookingRef: "", memo: "", ...defaults };
-  if (entity === "hotels") return { id, name: "", address: "", checkin: window.TRIP_DATA.TRIP.startDate, checkout: window.TRIP_DATA.TRIP.endDate, bookingRef: "", breakfast: false, guests: window.TRIP_DATA.PEOPLE.map(p => p.id), memo: "", ...defaults };
+  if (entity === "flights") return { id, type: "outbound", airline: "", flightNumber: "", dep: { airport: "", time: "", mapUrl: "" }, arr: { airport: "", time: "", mapUrl: "" }, durationMin: 0, passengers: window.TRIP_DATA.PEOPLE.map(p => p.id), bookingRef: "", memo: "", ...defaults };
+  if (entity === "hotels") return { id, name: "", address: "", checkin: window.TRIP_DATA.TRIP.startDate, checkout: window.TRIP_DATA.TRIP.endDate, bookingRef: "", breakfast: false, guests: window.TRIP_DATA.PEOPLE.map(p => p.id), memo: "", mapUrl: "", locationNote: "", ...defaults };
   if (entity === "places") return { id, name: "", address: "", lat: null, lng: null, externalPlaceId: "", mapUrl: "", ...defaults };
-  if (entity === "events") return { id, name: "", host: "", placeId: "pl-unknown", start: window.TRIP_DATA.TRIP.startDate, end: window.TRIP_DATA.TRIP.endDate, purpose: "", dressCode: "", sessions: [], memo: "", ...defaults };
+  if (entity === "events") return { id, name: "", host: "", placeId: "", placeName: "", placeMapUrl: "", start: window.TRIP_DATA.TRIP.startDate, end: window.TRIP_DATA.TRIP.endDate, purpose: "", dressCode: "", sessions: [], memo: "", ...defaults };
   if (entity === "routes") return { id, date: window.TRIP_DATA.DAYS[0]?.date, fromSched: "", toSched: "", from: "", to: "", mode: "driving", distance: 0, durationMin: 0, bufferMin: 10, dep: "", inferred: false, ...defaults };
   if (entity === "trip") return { ...window.TRIP_DATA.TRIP, ...defaults };
   return { id, ...defaults };
@@ -100,97 +102,17 @@ function AttendeePicker({ value, onChange }) {
   );
 }
 
-function googlePlaceToItem(place) {
-  const placeId = place.place_id || "";
-  const slug = placeId
-    ? placeId.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 42)
-    : (place.name || "place").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 42);
-  const loc = place.geometry?.location;
-  return {
-    id: `pl-g-${slug || Date.now()}`,
-    name: place.name || "새 장소",
-    address: place.formatted_address || "",
-    lat: loc ? loc.lat() : null,
-    lng: loc ? loc.lng() : null,
-    externalPlaceId: placeId,
-    mapUrl: place.url || (placeId ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name || "")}&query_place_id=${encodeURIComponent(placeId)}` : ""),
-  };
-}
-
-function GooglePlaceSearch({ onPlaceSaved }) {
-  const inputRef = React.useRef(null);
-  const autocompleteRef = React.useRef(null);
-  const [status, setStatus] = useState(window.isGoogleMapsEnabled?.() ? "Google 장소 검색 준비 중" : "Google Maps API 키 필요");
-
-  React.useEffect(() => {
-    let mounted = true;
-    async function boot() {
-      const maps = await window.ensureGoogleMaps?.();
-      if (!mounted) return;
-      if (!maps?.places) {
-        setStatus("Google Maps API 키를 Vercel 환경변수에 넣으면 검색이 켜집니다.");
-        return;
-      }
-      autocompleteRef.current = new maps.places.Autocomplete(inputRef.current, {
-        fields: ["place_id", "name", "formatted_address", "geometry", "url"],
-        componentRestrictions: { country: ["tw", "kr"] },
-      });
-      autocompleteRef.current.addListener("place_changed", async () => {
-        const place = autocompleteRef.current.getPlace();
-        if (!place?.place_id) {
-          setStatus("검색 결과에서 장소를 선택해 주세요.");
-          return;
-        }
-        const item = googlePlaceToItem(place);
-        setStatus("장소 저장 중");
-        try {
-          if (window.isDbEnabled?.()) await window.upsertEntity("places", item);
-          onPlaceSaved(item);
-          setStatus(`${item.name} 저장됨`);
-        } catch (err) {
-          setStatus(err.message || "장소 저장 실패");
-        }
-      });
-      setStatus("장소명을 검색하세요.");
-    }
-    boot();
-    return () => { mounted = false; };
-  }, []);
-
-  return (
-    <div className="google-place-search">
-      <div className="google-place-input">
-        <LIcon name="search" size={14} />
-        <input ref={inputRef} placeholder="Google Maps에서 장소 검색" disabled={!window.isGoogleMapsEnabled?.()} />
-      </div>
-      <div className="google-place-status">{status}</div>
-    </div>
-  );
-}
-
-function PlacePicker({ value, onChange }) {
-  const place = value ? window.TD.getPlace(value) : null;
+function PlacePicker({ nameValue, mapUrlValue, onNameChange, onMapUrlChange, placeholder = "예: Caesar Park Taipei" }) {
+  const previewUrl = window.normalizeMapUrl(mapUrlValue, nameValue);
   return (
     <div className="place-picker" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      {place ? (
-        <div style={{ border: "1px solid var(--divider-10)", borderRadius: 12, padding: "12px 14px", background: "var(--surface-neutral-0)", display: "flex", alignItems: "flex-start", gap: 10 }}>
-          <div style={{ width: 28, height: 28, borderRadius: 9999, background: "var(--surface-neutral-10)", display: "grid", placeItems: "center", flexShrink: 0 }}>
-            <LIcon name="map-pin" size={14} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ font: "600 13px/18px var(--font-pretendard)" }}>{place.name}</div>
-            {place.address && <div style={{ font: "500 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-50)", marginTop: 2 }}>{place.address}</div>}
-          </div>
-          <button type="button" className="adot-btn line" style={{ height: 30, padding: "0 10px", fontSize: 12, flexShrink: 0 }} onClick={() => onChange("")}>
-            지우기
-          </button>
-        </div>
-      ) : (
-        <div style={{ border: "1px dashed var(--divider-20)", borderRadius: 12, padding: "12px 14px", font: "500 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>
-          아직 선택된 장소가 없습니다.
-        </div>
+      <TextInput value={nameValue} onChange={onNameChange} placeholder={placeholder} />
+      <TextInput value={mapUrlValue} onChange={onMapUrlChange} placeholder="Google Maps 링크를 붙여 넣거나 비워두면 장소명으로 자동 생성" />
+      {previewUrl && (
+        <button type="button" className="adot-btn line" style={{ height: 32, padding: "0 12px", fontSize: 12, alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => window.openMapUrl(mapUrlValue, nameValue)}>
+          <LIcon name="map" size={13} />Google Maps 미리보기
+        </button>
       )}
-      <GooglePlaceSearch onPlaceSaved={(place) => onChange(place.id)} />
     </div>
   );
 }
@@ -253,7 +175,7 @@ function EntityForm({ entity, draft, setDraft }) {
         <FormField label="시작"><TextInput type="time" value={draft.start} onChange={v => update("start", v)} /></FormField>
         <FormField label="종료"><TextInput type="time" value={draft.end} onChange={v => update("end", v)} /></FormField>
         <FormField label="제목" wide><TextInput value={draft.title} onChange={v => update("title", v)} /></FormField>
-        <FormField label="장소" wide><PlacePicker value={draft.placeId} onChange={v => update("placeId", v)} /></FormField>
+        <FormField label="장소" wide><PlacePicker nameValue={draft.placeName} mapUrlValue={draft.placeMapUrl} onNameChange={v => update("placeName", v)} onMapUrlChange={v => update("placeMapUrl", v)} /></FormField>
         <FormField label="상세 위치" wide><TextInput value={draft.placeNote} onChange={v => update("placeNote", v)} placeholder="예: 3층 Ballroom 앞, Hall 2 Booth R0302, 북문 Gate B" /></FormField>
         <FormField label="설명" wide><TextAreaInput rows={3} value={draft.desc} onChange={v => update("desc", v)} /></FormField>
         <FormField label="참석자" wide><AttendeePicker value={draft.attendees} onChange={v => update("attendees", v)} /></FormField>
@@ -271,8 +193,10 @@ function EntityForm({ entity, draft, setDraft }) {
         <FormField label="예약번호"><TextInput value={draft.bookingRef} onChange={v => update("bookingRef", v)} /></FormField>
         <FormField label="출발 공항"><TextInput value={draft.dep?.airport} onChange={v => setNested("dep", "airport", v)} /></FormField>
         <FormField label="출발 시각"><TextInput type="datetime-local" value={draft.dep?.time} onChange={v => setNested("dep", "time", v)} /></FormField>
+        <FormField label="출발 지도 링크" wide><TextInput value={draft.dep?.mapUrl} onChange={v => setNested("dep", "mapUrl", v)} placeholder="Google Maps 링크 또는 공항명 검색 링크" /></FormField>
         <FormField label="도착 공항"><TextInput value={draft.arr?.airport} onChange={v => setNested("arr", "airport", v)} /></FormField>
         <FormField label="도착 시각"><TextInput type="datetime-local" value={draft.arr?.time} onChange={v => setNested("arr", "time", v)} /></FormField>
+        <FormField label="도착 지도 링크" wide><TextInput value={draft.arr?.mapUrl} onChange={v => setNested("arr", "mapUrl", v)} placeholder="Google Maps 링크 또는 공항명 검색 링크" /></FormField>
         <FormField label="탑승자" wide><AttendeePicker value={draft.passengers} onChange={v => update("passengers", v)} /></FormField>
         <FormField label="메모" wide><TextAreaInput rows={3} value={draft.memo} onChange={v => update("memo", v)} /></FormField>
       </div>
@@ -284,6 +208,8 @@ function EntityForm({ entity, draft, setDraft }) {
       <div className="form-grid">
         <FormField label="호텔명" wide><TextInput value={draft.name} onChange={v => update("name", v)} /></FormField>
         <FormField label="주소" wide><TextInput value={draft.address} onChange={v => update("address", v)} /></FormField>
+        <FormField label="상세 위치" wide><TextInput value={draft.locationNote} onChange={v => update("locationNote", v)} placeholder="예: 로비 오른쪽 엘리베이터, 12층 라운지 앞" /></FormField>
+        <FormField label="지도 링크" wide><TextInput value={draft.mapUrl} onChange={v => update("mapUrl", v)} placeholder="Google Maps 링크 또는 호텔명 검색 링크" /></FormField>
         <FormField label="체크인"><TextInput type="date" value={draft.checkin} onChange={v => update("checkin", v)} /></FormField>
         <FormField label="체크아웃"><TextInput type="date" value={draft.checkout} onChange={v => update("checkout", v)} /></FormField>
         <FormField label="예약번호"><TextInput value={draft.bookingRef} onChange={v => update("bookingRef", v)} /></FormField>
@@ -314,7 +240,7 @@ function EntityForm({ entity, draft, setDraft }) {
       <div className="form-grid">
         <FormField label="행사명" wide><TextInput value={draft.name} onChange={v => update("name", v)} /></FormField>
         <FormField label="주최"><TextInput value={draft.host} onChange={v => update("host", v)} /></FormField>
-        <FormField label="장소" wide><PlacePicker value={draft.placeId} onChange={v => update("placeId", v)} /></FormField>
+        <FormField label="장소" wide><PlacePicker nameValue={draft.placeName} mapUrlValue={draft.placeMapUrl} onNameChange={v => update("placeName", v)} onMapUrlChange={v => update("placeMapUrl", v)} /></FormField>
         <FormField label="시작일"><TextInput type="date" value={draft.start} onChange={v => update("start", v)} /></FormField>
         <FormField label="종료일"><TextInput type="date" value={draft.end} onChange={v => update("end", v)} /></FormField>
         <FormField label="드레스코드"><TextInput value={draft.dressCode} onChange={v => update("dressCode", v)} /></FormField>
@@ -355,7 +281,17 @@ function EntityForm({ entity, draft, setDraft }) {
 }
 
 function WebEntityEditor({ entity, item, title, defaults, onClose, onSaved, allowDelete = true }) {
-  const [draft, setDraft] = useState(() => cloneData(item || editorNewItem(entity, defaults)));
+  const [draft, setDraft] = useState(() => {
+    const base = cloneData(item || editorNewItem(entity, defaults));
+    if (entity === "schedule" || entity === "events") {
+      const place = base.placeId ? window.TD.getPlace(base.placeId) : null;
+      return { ...base, placeName: base.placeName || place?.name || "", placeMapUrl: base.placeMapUrl || place?.mapUrl || "" };
+    }
+    if (entity === "flights") {
+      return { ...base, dep: { mapUrl: "", ...(base.dep || {}) }, arr: { mapUrl: "", ...(base.arr || {}) } };
+    }
+    return base;
+  });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const isNew = !item;
@@ -366,7 +302,27 @@ function WebEntityEditor({ entity, item, title, defaults, onClose, onSaved, allo
     setBusy(true);
     setError("");
     try {
-      await window.upsertEntity(entity, draft);
+      let nextDraft = cloneData(draft);
+      if (entity === "schedule" || entity === "events") {
+        const placeName = String(nextDraft.placeName || "").trim();
+        if (placeName) {
+          const placeId = nextDraft.placeId || window.localId("pl");
+          const current = nextDraft.placeId ? window.TD.getPlace(nextDraft.placeId) : null;
+          await window.upsertEntity("places", {
+            id: placeId,
+            name: placeName,
+            address: current?.address || "",
+            lat: current?.lat ?? null,
+            lng: current?.lng ?? null,
+            externalPlaceId: current?.externalPlaceId || "",
+            mapUrl: window.normalizeMapUrl(nextDraft.placeMapUrl, placeName),
+          });
+          nextDraft.placeId = placeId;
+        } else {
+          nextDraft.placeId = "";
+        }
+      }
+      await window.upsertEntity(entity, nextDraft);
       await onSaved?.();
       onClose?.();
     } catch (err) {
