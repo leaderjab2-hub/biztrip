@@ -1,0 +1,273 @@
+/* adot Design System 4.0 — Tokens
+ * Generated from tokens.json. Light mode shown by default.
+ * Use semantic tokens (--surface-*, --on-surface-*, --bg-*, --component-*)
+ * for production work; primitive tokens are reference only.
+ */
+
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
+
+:root {
+  /* === PRIMITIVE — Neutral === */
+  --neutral-0:    #FFFFFF;
+  --neutral-50:   #F9FAFB;
+  --neutral-100:  #F3F4F6;
+  --neutral-200:  #E5E7EB;
+  --neutral-300:  #D1D5DB;
+  --neutral-400:  #9CA3AF;
+  --neutral-500:  #6B7280;
+  --neutral-600:  #4B5563;
+  --neutral-700:  #374151;
+  --neutral-800:  #1F2937;
+  --neutral-900:  #111827;
+  --neutral-1000: #000000;
+
+  /* === PRIMITIVE — Brand & Semantic palettes === */
+  --blue-50:  #EBF1FF;  --blue-100: #D6E4FF;  --blue-200: #ADC8FF;
+  --blue-300: #84ACFF;  --blue-400: #5B90FF;  --blue-500: #0052FF;
+  --blue-600: #0042CC;  --blue-700: #003299;  --blue-800: #002166;  --blue-900: #001133;
+
+  --red-50:  #FFF0F2;  --red-100: #FFDDE6;  --red-200: #FFBDCC;
+  --red-300: #FF8AAB;  --red-400: #FF5282;  --red-500: #FF0040;
+  --red-600: #D90036;  --red-700: #B3002D;  --red-800: #8C0023;  --red-900: #66001A;
+
+  --green-50:  #E7FEEF;  --green-100: #CFFDDF;  --green-200: #9FFBBE;
+  --green-300: #6FF99E;  --green-400: #3FF77D;  --green-500: #11F151;
+  --green-600: #0EC141;  --green-700: #0A9131;  --green-800: #076120;  --green-900: #033010;
+
+  --orange-50:  #FFF3E0;  --orange-100: #FFE0B2;  --orange-200: #FFCC80;
+  --orange-300: #FFB74D;  --orange-400: #FFA726;  --orange-500: #FF8C00;
+  --orange-600: #EF6C00;  --orange-700: #E65100;  --orange-800: #BF4300;  --orange-900: #993500;
+
+  --pink-50:  #FFF0F8;  --pink-100: #FFE1F2;  --pink-200: #FFC6E6;
+  --pink-300: #FFB6DE;  --pink-400: #FF8CC8;  --pink-500: #FF62B2;
+  --pink-600: #E64599;  --pink-700: #B33677;  --pink-800: #802655;  --pink-900: #4D1733;
+
+  --lime-50:  #F7FDF1;  --lime-100: #EEFBE2;  --lime-200: #D8F6BA;
+  --lime-300: #C2F192;  --lime-400: #B5EF77;  --lime-500: #97D650;
+  --lime-600: #78AB3F;  --lime-700: #5A812F;  --lime-800: #3C5620;  --lime-900: #1E2B10;
+
+  --lemon-50:  #FCFEEF;  --lemon-100: #F8FDD9;  --lemon-200: #EFF9B4;
+  --lemon-300: #E9F58F;  --lemon-400: #E3F179;  --lemon-500: #C8D65D;
+  --lemon-600: #A8B44D;  --lemon-700: #86903D;  --lemon-800: #62692D;  --lemon-900: #3D411D;
+
+  --oatmeal-50:  #FAF8F5;  --oatmeal-100: #F5F0E9;  --oatmeal-200: #F0E7DA;
+  --oatmeal-300: #E6D8C4;  --oatmeal-400: #DBC9AE;  --oatmeal-500: #C7B291;
+  --oatmeal-600: #A89270;  --oatmeal-700: #8A7557;  --oatmeal-800: #6B5940;  --oatmeal-900: #4D3F2B;
+
+  --sky-50:  #F1F6FD;  --sky-100: #E2EDFB;  --sky-200: #C5DCF6;
+  --sky-300: #B2CDEE;  --sky-400: #94B6E1;  --sky-500: #769FD4;
+  --sky-600: #5888C7;  --sky-700: #426A9F;  --sky-800: #2F4C72;  --sky-900: #1C2E45;
+
+  /* === SEMANTIC — Background === */
+  --bg-00:    #FFFFFF;
+  --bg-05:    #F9FAFB;
+  --bg-10:    #F3F4F6;
+  --bg-20:    #E5E7EB;
+  --bg-oat-10: #F0E7DA;
+  --bg-oat-20: #DBC9AE;
+
+  /* === SEMANTIC — Surface (neutral) === */
+  --surface-neutral-00:  #FFFFFF;
+  --surface-neutral-05:  #F9FAFB;
+  --surface-neutral-10:  #F3F4F6;
+  --surface-neutral-20:  #E5E7EB;
+  --surface-neutral-30:  #D1D5DB;
+  --surface-neutral-40:  #9CA3AF;
+  --surface-neutral-50:  #6B7280;
+  --surface-neutral-60:  #4B5563;
+  --surface-neutral-70:  #374151;
+  --surface-neutral-80:  #1F2937;
+  --surface-neutral-90:  #111827;
+  --surface-neutral-100: #000000;
+
+  /* === SEMANTIC — On-surface (text, neutral) === */
+  --on-surface-neutral-00:  #FFFFFF;
+  --on-surface-neutral-05:  #F9FAFB;
+  --on-surface-neutral-10:  #F3F4F6;
+  --on-surface-neutral-20:  #E5E7EB;
+  --on-surface-neutral-30:  #D1D5DB;
+  --on-surface-neutral-40:  #9CA3AF;
+  --on-surface-neutral-50:  #6B7280;
+  --on-surface-neutral-60:  #4B5563;
+  --on-surface-neutral-70:  #374151;
+  --on-surface-neutral-80:  #1F2937;
+  --on-surface-neutral-90:  #111827;
+  --on-surface-neutral-100: #000000;
+
+  /* === SEMANTIC — Component / Icon === */
+  --icon-default: #1F2937;
+  --icon-dim:     #9CA3AF;
+  --icon-white:   #FFFFFF;
+  --icon-blue:    #0052FF;
+  --icon-red:     #FF0040;
+  --icon-orange:  #FF8C00;
+
+  /* === SEMANTIC — Component / Buttons === */
+  --btn-primary-enable:    #1F2937;
+  --btn-primary-pressed:   #111827;
+  --btn-primary-disable:   #D1D5DB;
+  --btn-secondary-enable:  #E5E7EB;
+  --btn-secondary-pressed: #D1D5DB;
+  --btn-secondary-disable: #F3F4F6;
+  --btn-floating-normal:   #111827;
+  --btn-floating-pressed:  #6B7280;
+  --btn-floating-disable:  #D1D5DB;
+  --btn-floating-lemon:    #FCFEEF;
+
+  /* === SEMANTIC — Component / Elements === */
+  --toggle-on-bg:        #000000;
+  --toggle-off-bg:       #D1D5DB;
+  --toggle-knob:         #FFFFFF;
+  --toggle-disable-bg:   #9CA3AF;
+  --toggle-disable-knob: #F9FAFB;
+
+  --check-enable:           #9CA3AF;
+  --check-disable:          #D1D5DB;
+  --check-enable-check:     #111827;
+  --check-disable-default:  #F3F4F6;
+
+  --radio-enabled:    #9CA3AF;
+  --radio-disabled:   #E5E7EB;
+  --radio-enabled-on: #111827;
+
+  --divider-10:  #F3F4F6;
+  --divider-20:  #E5E7EB;
+  --divider-30:  #D1D5DB;
+
+  --chips-default:   #E5E7EB;
+  --chips-selected:  #111827;
+  --chips-hovering:  #9CA3AF;
+  --chips-disabled:  #D1D5DB;
+
+  --picker-btn-default:  #F3F4F6;
+  --picker-btn-select:   #111827;
+  --picker-btn-label:    #111827;
+  --picker-drum-focus-bar:    #F3F4F6;
+  --picker-drum-focus-label:  #111827;
+  --picker-drum-dim-label:    #9CA3AF;
+
+  /* === SCALE — Spacing === */
+  --space-6xs: 4px;   --space-5xs: 6px;   --space-4xs: 8px;   --space-3xs: 10px;
+  --space-2xs: 12px;  --space-xs:  14px;  --space-sm:  16px;  --space-md:  18px;
+  --space-lg:  20px;  --space-xl:  24px;  --space-2xl: 28px;  --space-3xl: 32px;
+  --space-4xl: 36px;  --space-5xl: 40px;  --space-6xl: 44px;
+
+  /* === SCALE — Radius === */
+  --radius-5xs: 4px;   --radius-4xs: 8px;   --radius-3xs: 10px;  --radius-2xs: 12px;
+  --radius-xs:  14px;  --radius-sm:  16px;  --radius-md:  18px;  --radius-lg:  20px;
+  --radius-xl:  24px;  --radius-2xl: 28px;  --radius-3xl: 32px;  --radius-4xl: 36px;
+  --radius-circle: 9999px;
+
+  /* === SCALE — Stroke === */
+  --stroke-thin:   1px;
+  --stroke-medium: 2px;
+  --stroke-thick:  4px;
+
+  /* === SCALE — Grids === */
+  --grid-ios-margin: 18px;
+  --grid-aos-margin: 18px;
+  --grid-web-margin: 22px;
+
+  /* === SCALE — Icon sizes === */
+  --icon-3xs: 10px; --icon-2xs: 14px; --icon-xs:  18px; --icon-sm:  20px;
+  --icon-md:  24px; --icon-lg:  28px; --icon-xl:  32px; --icon-2xl: 36px; --icon-3xl: 40px;
+
+  /* === SCALE — Opacity === */
+  --opacity-10: 0.10;
+  --opacity-30: 0.32;
+  --opacity-50: 0.52;
+  --opacity-70: 0.72;
+  --opacity-80: 0.80;
+
+  /* === FOUNDATION — Resolutions === */
+  --res-ios-w: 393px; --res-ios-h: 852px;
+  --res-aos-w: 360px; --res-aos-h: 800px;
+  --res-web-w: 1920px; --res-web-h: 1080px;
+
+  /* === EFFECTS — Shadow === */
+  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.06), 0 1px 3px rgba(17, 24, 39, 0.08);
+  --shadow-md: 0 4px 8px rgba(17, 24, 39, 0.08), 0 2px 4px rgba(17, 24, 39, 0.06);
+  --shadow-lg: 0 10px 24px rgba(17, 24, 39, 0.10), 0 4px 8px rgba(17, 24, 39, 0.06);
+
+  /* === FONT === */
+  --font-pretendard: "Pretendard", "Pretendard Variable", -apple-system, BlinkMacSystemFont,
+    system-ui, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* === TYPOGRAPHY — Sizes === */
+  --fs-caption-sm: 10px;
+  --fs-caption-md: 12px;
+  --fs-body-sm:    14px;
+  --fs-body-md:    16px;
+  --fs-body-lg:    18px;
+  --fs-title-md:   20px;
+  --fs-title-lg:   24px;
+  --fs-heading-sm: 28px;
+  --fs-heading-md: 32px;
+  --fs-heading-lg: 36px;
+  --fs-display-sm: 40px;
+  --fs-display-md: 48px;
+  --fs-display-lg: 56px;
+  --fs-display-xl: 64px;
+
+  --lh-caption-sm: 12px;
+  --lh-caption-md: 14px;
+  --lh-body-sm:    16px;
+  --lh-body-md:    18px;
+  --lh-body-lg:    20px;
+  --lh-title-md:   24px;
+  --lh-title-lg:   28px;
+  --lh-heading-sm: 36px;
+  --lh-heading-md: 36px;
+  --lh-heading-lg: 40px;
+  --lh-display-sm: 44px;
+  --lh-display-md: 48px;
+  --lh-display-lg: 60px;
+  --lh-display-xl: 68px;
+}
+
+/* Dark mode override (apply via [data-theme="dark"] on html or body) */
+[data-theme="dark"] {
+  --bg-00: #111827;  --bg-05: #1F2937;  --bg-10: #374151;  --bg-20: #4B5563;
+  --surface-neutral-00:  #000000; --surface-neutral-05:  #111827; --surface-neutral-10:  #1F2937;
+  --surface-neutral-20:  #374151; --surface-neutral-30:  #4B5563; --surface-neutral-40:  #6B7280;
+  --surface-neutral-50:  #9CA3AF; --surface-neutral-60:  #D1D5DB; --surface-neutral-70:  #E5E7EB;
+  --surface-neutral-80:  #F3F4F6; --surface-neutral-90:  #F9FAFB; --surface-neutral-100: #FFFFFF;
+  --on-surface-neutral-00:  #000000; --on-surface-neutral-05:  #111827; --on-surface-neutral-10:  #1F2937;
+  --on-surface-neutral-20:  #374151; --on-surface-neutral-30:  #4B5563; --on-surface-neutral-40:  #6B7280;
+  --on-surface-neutral-50:  #9CA3AF; --on-surface-neutral-60:  #D1D5DB; --on-surface-neutral-70:  #E5E7EB;
+  --on-surface-neutral-80:  #F3F4F6; --on-surface-neutral-90:  #F9FAFB; --on-surface-neutral-100: #FFFFFF;
+  --icon-default: #F9FAFB; --icon-dim: #4B5563; --icon-white: #111827;
+  --btn-primary-enable: #F9FAFB; --btn-primary-pressed: #F9FAFB; --btn-primary-disable: #374151;
+  --btn-floating-normal: #F9FAFB; --btn-floating-pressed: #E5E7EB; --btn-floating-disable: #4B5563;
+  --divider-10: #4B5563; --divider-20: #6B7280; --divider-30: #9CA3AF;
+  --chips-selected: #F9FAFB; --chips-default: #9CA3AF;
+}
+
+/* === Base + semantic helper classes === */
+html, body { font-family: var(--font-pretendard); color: var(--on-surface-neutral-90); background: var(--bg-00); }
+* { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+/* Display */
+.t-display-xl { font-size: var(--fs-display-xl); line-height: var(--lh-display-xl); font-weight: var(--weight-bold); }
+.t-display-lg { font-size: var(--fs-display-lg); line-height: var(--lh-display-lg); font-weight: var(--weight-bold); }
+.t-display-md { font-size: var(--fs-display-md); line-height: var(--lh-display-md); font-weight: var(--weight-bold); }
+.t-display-sm { font-size: var(--fs-display-sm); line-height: var(--lh-display-sm); font-weight: var(--weight-bold); }
+/* Heading */
+.t-heading-lg { font-size: var(--fs-heading-lg); line-height: var(--lh-heading-lg); font-weight: var(--weight-bold); }
+.t-heading-md { font-size: var(--fs-heading-md); line-height: var(--lh-heading-md); font-weight: var(--weight-bold); }
+.t-heading-sm { font-size: var(--fs-heading-sm); line-height: var(--lh-heading-sm); font-weight: var(--weight-bold); }
+/* Title */
+.t-title-lg   { font-size: var(--fs-title-lg);   line-height: var(--lh-title-lg);   font-weight: var(--weight-bold); }
+.t-title-md   { font-size: var(--fs-title-md);   line-height: var(--lh-title-md);   font-weight: var(--weight-bold); }
+/* Body */
+.t-body-lg    { font-size: var(--fs-body-lg);    line-height: var(--lh-body-lg);    font-weight: var(--weight-medium); }
+.t-body-md    { font-size: var(--fs-body-md);    line-height: var(--lh-body-md);    font-weight: var(--weight-regular); }
+.t-body-sm    { font-size: var(--fs-body-sm);    line-height: var(--lh-body-sm);    font-weight: var(--weight-regular); }
+/* Caption */
+.t-caption-md { font-size: var(--fs-caption-md); line-height: var(--lh-caption-md); font-weight: var(--weight-medium); }
+.t-caption-sm { font-size: var(--fs-caption-sm); line-height: var(--lh-caption-sm); font-weight: var(--weight-medium); }
