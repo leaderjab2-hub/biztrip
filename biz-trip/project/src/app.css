@@ -210,7 +210,7 @@ html, body {
   background: rgba(255,255,255,0.96);
   border-top: 1px solid var(--divider-10);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
 }
 .share-bottom-nav button {
@@ -1007,6 +1007,36 @@ html, body {
 }
 .m-cta.full { width: 100%; }
 .m-cta.sm { height: 36px; font-size: 13px; }
+.m-day-tabs {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.m-day-tabs button {
+  min-width: 0;
+  height: 44px;
+  border: 1px solid var(--divider-10);
+  border-radius: 8px;
+  background: var(--surface-neutral-10);
+  color: var(--on-surface-neutral-70);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+.m-day-tabs button.active {
+  background: var(--on-surface-neutral-100);
+  border-color: var(--on-surface-neutral-100);
+  color: #fff;
+}
+.m-day-tabs b {
+  font: 800 12px/15px var(--font-pretendard);
+}
+.m-day-tabs span {
+  font: 700 10px/13px var(--font-pretendard);
+}
 .m-brief-stat {
   min-height: 50px;
   border-radius: 8px;

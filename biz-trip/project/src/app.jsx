@@ -131,44 +131,6 @@ function ShareTabButton({ active, icon, label, onClick }) {
   );
 }
 
-function MobileDaysOverview({ personId, currentDay, onOpenDay }) {
-  const { DAYS } = window.TRIP_DATA;
-  return (
-    <div className="m-screen">
-      <div className="m-header">
-        <div className="m-h-eyebrow">
-          <LIcon name="calendar-days" size={12} />
-          <span>Day별 일정</span>
-        </div>
-        <div className="m-h-title">출장 전체 일정</div>
-        <div className="m-h-sub">6/1부터 6/4까지 핵심 일정만 빠르게 확인</div>
-      </div>
-      <div style={{ padding: "14px 18px 24px", display: "flex", flexDirection: "column", gap: 10 }}>
-        {DAYS.map((day) => {
-          const items = window.TD.getPersonItems(day.date, personId);
-          const meetings = items.filter(item => item.type === "meeting").length;
-          const first = items[0];
-          const last = items[items.length - 1];
-          return (
-            <button key={day.date} className={`m-day-card ${day.date === currentDay ? "active" : ""}`} onClick={() => onOpenDay(day.date)}>
-              <div className="m-day-date">
-                <b>{day.label}</b>
-                <span>{day.date.slice(5).replace("-", "/")} ({day.weekday})</span>
-              </div>
-              <div className="m-day-main">
-                <div>{day.title}</div>
-                <span>{items.length}개 일정 · 미팅 {meetings}건</span>
-                {first && last && <small>{first.start} {first.title} → {last.start} {last.title}</small>}
-              </div>
-              <LIcon name="chevron-right" size={16} />
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 function MobileMeetingsOverview({ personId, onOpenMeeting }) {
   const rows = Object.entries(window.TRIP_DATA.MEETINGS).map(([id, meeting]) => {
     const sched = window.TRIP_DATA.SCHEDULE.find(item => item.meetingId === id);
@@ -215,9 +177,11 @@ function MobileMeetingsOverview({ personId, onOpenMeeting }) {
 function ShareApp({ route, settings }) {
   const requestedPersonId = route.params.get("personId") || settings.viewAs;
   const personId = window.TD.getPerson(requestedPersonId) ? requestedPersonId : APP_DEFAULTS.viewAs;
-  const day = route.params.get("day") || settings.day;
+  const firstDay = window.TRIP_DATA.DAYS[0]?.date || settings.day;
+  const day = route.params.get("day") || firstDay;
   const nowHHMM = route.params.get("now") || settings.nowHHMM;
-  const screen = route.params.get("screen") || "briefing";
+  const rawScreen = route.params.get("screen") || "briefing";
+  const screen = rawScreen === "today" || rawScreen === "day" ? "days" : rawScreen;
   const meetingId = route.params.get("meetingId") || "m-smci-exec";
   const person = window.TD.getPerson(personId);
 
@@ -226,6 +190,7 @@ function ShareApp({ route, settings }) {
     go(`/share?${qs.toString()}`);
   };
 
+  const openDays = (nextDay = firstDay) => nextScreen("days", { day: nextDay });
   const navScreen = screen === "meeting" ? "meetings" : screen;
 
   return (
@@ -241,21 +206,18 @@ function ShareApp({ route, settings }) {
         {screen === "briefing" && (
           <MobileBriefing
             personId={personId}
-            onOpenDays={() => nextScreen("days")}
+            onOpenDays={() => openDays()}
             onOpenMeetings={() => nextScreen("meetings")}
             onOpenMeeting={(id) => nextScreen("meeting", { meetingId: id })}
           />
         )}
-        {screen === "today" && <MobileToday personId={personId} date={day} nowHHMM={nowHHMM} />}
-        {screen === "days" && <MobileDaysOverview personId={personId} currentDay={day} onOpenDay={(nextDay) => nextScreen("day", { day: nextDay })} />}
-        {screen === "day" && <MobileDay personId={personId} date={day} />}
+        {screen === "days" && <MobileDay personId={personId} date={day} onChangeDay={(nextDay) => openDays(nextDay)} />}
         {screen === "meetings" && <MobileMeetingsOverview personId={personId} onOpenMeeting={(id) => nextScreen("meeting", { meetingId: id })} />}
         {screen === "meeting" && <MobileMeeting meetingId={meetingId} personId={personId} onBack={() => nextScreen("meetings")} />}
       </div>
       <div className="share-bottom-nav">
         <ShareTabButton active={navScreen === "briefing"} icon="briefcase" label="브리핑" onClick={() => nextScreen("briefing")} />
-        <ShareTabButton active={navScreen === "today"} icon="clock" label="오늘" onClick={() => nextScreen("today")} />
-        <ShareTabButton active={navScreen === "days" || navScreen === "day"} icon="calendar-days" label="일정" onClick={() => nextScreen("days")} />
+        <ShareTabButton active={navScreen === "days"} icon="calendar-days" label="일정" onClick={() => openDays()} />
         <ShareTabButton active={navScreen === "meetings"} icon="handshake" label="미팅" onClick={() => nextScreen("meetings")} />
       </div>
     </div>

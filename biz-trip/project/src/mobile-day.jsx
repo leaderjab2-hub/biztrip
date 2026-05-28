@@ -1,6 +1,6 @@
 // Mobile share — Day detail with route segments inline + map
 
-function MobileDay({ personId = "p-ceo", date = "2026-06-11" }) {
+function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay }) {
   const items = window.TD.getPersonItems(date, personId);
   const person = window.TD.getPerson(personId);
   const day = window.TRIP_DATA.DAYS.find(d => d.date === date);
@@ -8,12 +8,11 @@ function MobileDay({ personId = "p-ceo", date = "2026-06-11" }) {
 
   return (
     <div className="m-screen">
-      {/* Header */}
       <div className="m-header">
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <LIcon name="chevron-left" size={22} />
-          <div style={{ flex: 1, textAlign: "center", font: "600 15px/18px var(--font-pretendard)" }}>{person.name} 일정</div>
-          <LIcon name="share-2" size={18} />
+        <div className="m-h-eyebrow">
+          <LIcon name="calendar-days" size={12} />
+          <span>일정</span>
+          <span style={{ marginLeft: "auto", color: "var(--on-surface-neutral-50)", textTransform: "none", letterSpacing: 0 }}>{person.name}</span>
         </div>
         <div style={{ marginTop: 10 }}>
           <div style={{ font: "700 24px/30px var(--font-pretendard)", letterSpacing: "-0.02em" }}>
@@ -23,17 +22,17 @@ function MobileDay({ personId = "p-ceo", date = "2026-06-11" }) {
             {date.replace(/-/g, ".")} ({day?.weekday}) · 일정 {items.length}건
           </div>
         </div>
-        {/* Day pill chips */}
-        <div style={{ marginTop: 12, display: "flex", gap: 6, overflowX: "auto" }}>
+        <div className="m-day-tabs">
           {allDays.map(d => (
-            <div key={d.date} className="tone-chip" style={{
-              height: 28, padding: "0 12px", flexShrink: 0,
-              background: d.date === date ? "var(--on-surface-neutral-100)" : "var(--surface-neutral-10)",
-              color: d.date === date ? "#fff" : "var(--on-surface-neutral-80)",
-              fontWeight: 600,
-            }}>
-              {d.label} · {d.date.slice(5).replace("-", "/")}
-            </div>
+            <button
+              key={d.date}
+              type="button"
+              className={d.date === date ? "active" : ""}
+              onClick={() => onChangeDay?.(d.date)}
+            >
+              <b>{d.label.replace("Day ", "D")}</b>
+              <span>{d.date.slice(5).replace("-", "/")}</span>
+            </button>
           ))}
         </div>
       </div>
