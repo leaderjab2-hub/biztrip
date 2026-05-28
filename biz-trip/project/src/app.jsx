@@ -106,6 +106,10 @@ function AdminApp({ route, settings, onDataChanged }) {
   const path = route.path;
   if (path === "/" || path === "/dashboard") return <WebDashboard accent={settings.accent} onDataChanged={onDataChanged} />;
   if (path === "/dashboard") return <WebDashboard accent={settings.accent} onDataChanged={onDataChanged} />;
+  if (path === "/people") return <WebCollectionPage kind="people" accent={settings.accent} onDataChanged={onDataChanged} />;
+  if (path === "/flights") return <WebCollectionPage kind="flights" accent={settings.accent} onDataChanged={onDataChanged} />;
+  if (path === "/hotels") return <WebCollectionPage kind="hotels" accent={settings.accent} onDataChanged={onDataChanged} />;
+  if (path === "/events") return <WebCollectionPage kind="events" accent={settings.accent} onDataChanged={onDataChanged} />;
   if (path === "/itinerary") return <WebItinerary day={settings.day} personFilter="all" accent={settings.accent} onDataChanged={onDataChanged} />;
   if (path === "/routes") return <WebRoutes day={settings.day} accent={settings.accent} onDataChanged={onDataChanged} />;
   if (path === "/admin") return <WebAdminData onDataChanged={onDataChanged} />;

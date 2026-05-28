@@ -42,6 +42,8 @@ function editorNewItem(entity, defaults = {}) {
     ...defaults,
   };
   if (entity === "meetings") return { id, name: "", counterpart: "", counterpartPeople: [], objective: "", agenda: [], talkingPoints: [], cautions: [], followUps: [], memo: "", ...defaults };
+  if (entity === "flights") return { id, type: "outbound", airline: "", flightNumber: "", dep: { airport: "", time: "" }, arr: { airport: "", time: "" }, durationMin: 0, passengers: window.TRIP_DATA.PEOPLE.map(p => p.id), bookingRef: "", memo: "", ...defaults };
+  if (entity === "hotels") return { id, name: "", address: "", checkin: window.TRIP_DATA.TRIP.startDate, checkout: window.TRIP_DATA.TRIP.endDate, bookingRef: "", breakfast: false, guests: window.TRIP_DATA.PEOPLE.map(p => p.id), memo: "", ...defaults };
   if (entity === "places") return { id, name: "", address: "", lat: null, lng: null, externalPlaceId: "", mapUrl: "", ...defaults };
   if (entity === "events") return { id, name: "", host: "", placeId: "pl-unknown", start: window.TRIP_DATA.TRIP.startDate, end: window.TRIP_DATA.TRIP.endDate, purpose: "", dressCode: "", sessions: [], memo: "", ...defaults };
   if (entity === "routes") return { id, date: window.TRIP_DATA.DAYS[0]?.date, fromSched: "", toSched: "", from: "", to: "", mode: "driving", distance: 0, durationMin: 0, bufferMin: 10, dep: "", inferred: false, ...defaults };
@@ -158,8 +160,39 @@ function EntityForm({ entity, draft, setDraft }) {
         <FormField label="장소" wide><SelectInput value={draft.placeId} onChange={v => update("placeId", v)} options={[{ value: "", label: "장소 없음" }, ...places]} /></FormField>
         <FormField label="설명" wide><TextAreaInput rows={3} value={draft.desc} onChange={v => update("desc", v)} /></FormField>
         <FormField label="참석자" wide><AttendeePicker value={draft.attendees} onChange={v => update("attendees", v)} /></FormField>
-        <FormField label="미팅 ID"><TextInput value={draft.meetingId} onChange={v => update("meetingId", v)} placeholder="m-..." /></FormField>
-        <FormField label="이벤트 ID"><TextInput value={draft.eventId} onChange={v => update("eventId", v)} placeholder="e-..." /></FormField>
+      </div>
+    );
+  }
+
+  if (entity === "flights") {
+    const setNested = (key, field, value) => setDraft(d => ({ ...d, [key]: { ...(d[key] || {}), [field]: value } }));
+    return (
+      <div className="form-grid">
+        <FormField label="구분"><SelectInput value={draft.type} onChange={v => update("type", v)} options={[{ value: "outbound", label: "출국" }, { value: "return", label: "귀국" }]} /></FormField>
+        <FormField label="항공사"><TextInput value={draft.airline} onChange={v => update("airline", v)} /></FormField>
+        <FormField label="편명"><TextInput value={draft.flightNumber} onChange={v => update("flightNumber", v)} /></FormField>
+        <FormField label="예약번호"><TextInput value={draft.bookingRef} onChange={v => update("bookingRef", v)} /></FormField>
+        <FormField label="출발 공항"><TextInput value={draft.dep?.airport} onChange={v => setNested("dep", "airport", v)} /></FormField>
+        <FormField label="출발 시각"><TextInput type="datetime-local" value={draft.dep?.time} onChange={v => setNested("dep", "time", v)} /></FormField>
+        <FormField label="도착 공항"><TextInput value={draft.arr?.airport} onChange={v => setNested("arr", "airport", v)} /></FormField>
+        <FormField label="도착 시각"><TextInput type="datetime-local" value={draft.arr?.time} onChange={v => setNested("arr", "time", v)} /></FormField>
+        <FormField label="탑승자" wide><AttendeePicker value={draft.passengers} onChange={v => update("passengers", v)} /></FormField>
+        <FormField label="메모" wide><TextAreaInput rows={3} value={draft.memo} onChange={v => update("memo", v)} /></FormField>
+      </div>
+    );
+  }
+
+  if (entity === "hotels") {
+    return (
+      <div className="form-grid">
+        <FormField label="호텔명" wide><TextInput value={draft.name} onChange={v => update("name", v)} /></FormField>
+        <FormField label="주소" wide><TextInput value={draft.address} onChange={v => update("address", v)} /></FormField>
+        <FormField label="체크인"><TextInput type="date" value={draft.checkin} onChange={v => update("checkin", v)} /></FormField>
+        <FormField label="체크아웃"><TextInput type="date" value={draft.checkout} onChange={v => update("checkout", v)} /></FormField>
+        <FormField label="예약번호"><TextInput value={draft.bookingRef} onChange={v => update("bookingRef", v)} /></FormField>
+        <FormField label="조식"><SelectInput value={draft.breakfast ? "yes" : "no"} onChange={v => update("breakfast", v === "yes")} options={[{ value: "yes", label: "포함" }, { value: "no", label: "미포함" }]} /></FormField>
+        <FormField label="투숙자" wide><AttendeePicker value={draft.guests} onChange={v => update("guests", v)} /></FormField>
+        <FormField label="메모" wide><TextAreaInput rows={3} value={draft.memo} onChange={v => update("memo", v)} /></FormField>
       </div>
     );
   }

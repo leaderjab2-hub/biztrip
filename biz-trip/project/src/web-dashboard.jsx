@@ -5,12 +5,12 @@ function WebSidebar({ active = "dashboard" }) {
   const { PEOPLE, FLIGHTS, HOTEL, SCHEDULE, MEETINGS, EVENTS } = window.TRIP_DATA;
   const items = [
     { id: "dashboard",  label: "개요",          icon: "layout-dashboard", count: null, href: "/dashboard" },
-    { id: "people",     label: "참석자",        icon: "users",            count: PEOPLE.length, href: "/dashboard" },
-    { id: "flights",    label: "항공편",        icon: "plane",            count: FLIGHTS.length, href: "/dashboard" },
-    { id: "hotels",     label: "호텔",          icon: "bed-double",       count: HOTEL ? 1 : 0, href: "/dashboard" },
+    { id: "people",     label: "참석자",        icon: "users",            count: PEOPLE.length, href: "/people" },
+    { id: "flights",    label: "항공편",        icon: "plane",            count: FLIGHTS.length, href: "/flights" },
+    { id: "hotels",     label: "호텔",          icon: "bed-double",       count: HOTEL ? 1 : 0, href: "/hotels" },
     { id: "itinerary",  label: "Day별 일정",    icon: "calendar-days",    count: SCHEDULE.length, href: "/itinerary" },
     { id: "meetings",   label: "미팅",          icon: "handshake",        count: Object.keys(MEETINGS).length, href: "/meeting/m-smci-exec" },
-    { id: "events",     label: "행사",          icon: "ticket",           count: Object.keys(EVENTS).length, href: "/dashboard" },
+    { id: "events",     label: "행사",          icon: "ticket",           count: Object.keys(EVENTS).length, href: "/events" },
     { id: "routes",     label: "이동 동선",     icon: "route",            count: null, href: "/routes" },
     { id: "admin",      label: "데이터 편집",   icon: "database",         count: null, href: "/admin" },
     { id: "report",     label: "브리핑 리포트", icon: "file-text",        count: null, href: "/share?screen=briefing&personId=p-my&day=2026-06-01&now=10:42" },
@@ -280,4 +280,123 @@ function WebDashboard({ accent = "mono", onDataChanged }) {
   );
 }
 
-Object.assign(window, { WebDashboard, WebSidebar, WebTopbar });
+function WebCollectionPage({ kind, accent = "mono", onDataChanged }) {
+  const { PEOPLE, FLIGHTS, HOTEL, EVENTS, SCHEDULE } = window.TRIP_DATA;
+  const [editor, setEditor] = useState(null);
+  const configs = {
+    people: {
+      active: "people",
+      icon: "users",
+      title: "참석자",
+      subtitle: "출장 참석자와 역할, 연락처를 관리",
+      addLabel: "참석자 추가",
+      entity: "people",
+      items: PEOPLE,
+      render: (p) => {
+        const count = SCHEDULE.filter(s => (s.attendees || []).includes(p.id)).length;
+        return {
+          title: p.name,
+          meta: `${p.role || "역할 미정"} · ${p.type === "executive" ? "임원" : "구성원"}`,
+          body: `${p.email || "이메일 없음"} · ${p.phone || "전화 없음"} · 일정 ${count}건`,
+          avatar: <Avatar person={p} />,
+        };
+      },
+    },
+    flights: {
+      active: "flights",
+      icon: "plane",
+      title: "항공편",
+      subtitle: "출국/귀국 항공편과 탑승자를 관리",
+      addLabel: "항공편 추가",
+      entity: "flights",
+      items: FLIGHTS,
+      render: (f) => ({
+        title: `${f.airline} ${f.flightNumber}`,
+        meta: `${f.type === "outbound" ? "출국" : "귀국"} · ${f.dep?.airport || ""} → ${f.arr?.airport || ""}`,
+        body: `${f.dep?.time || ""} → ${f.arr?.time || ""} · 탑승 ${f.passengers?.length || 0}명`,
+        avatar: <div className="collection-icon"><LIcon name={f.type === "outbound" ? "plane-takeoff" : "plane-landing"} size={17} /></div>,
+      }),
+    },
+    hotels: {
+      active: "hotels",
+      icon: "bed-double",
+      title: "호텔",
+      subtitle: "숙소, 체크인/체크아웃, 투숙자를 관리",
+      addLabel: "호텔 추가",
+      entity: "hotels",
+      items: HOTEL ? [HOTEL] : [],
+      render: (h) => ({
+        title: h.name,
+        meta: `${h.checkin || ""} → ${h.checkout || ""}`,
+        body: `${h.address || "주소 없음"} · 투숙 ${h.guests?.length || 0}명`,
+        avatar: <div className="collection-icon"><LIcon name="bed-double" size={17} /></div>,
+      }),
+    },
+    events: {
+      active: "events",
+      icon: "ticket",
+      title: "행사",
+      subtitle: "컨퍼런스/리셉션/세션 정보를 관리",
+      addLabel: "행사 추가",
+      entity: "events",
+      items: Object.entries(EVENTS).map(([id, event]) => ({ id, ...event })),
+      render: (e) => ({
+        title: e.name,
+        meta: `${e.host || "주최 미정"} · ${e.start || ""} → ${e.end || ""}`,
+        body: `${window.TD.getPlace(e.placeId)?.name || "장소 미정"} · 세션 ${e.sessions?.length || 0}개`,
+        avatar: <div className="collection-icon"><LIcon name="ticket" size={17} /></div>,
+      }),
+    },
+  };
+  const cfg = configs[kind] || configs.people;
+
+  return (
+    <div className={`web-frame accent-${accent}`}>
+      <WebTopbar crumb={["출장", window.TRIP_DATA.TRIP.title, cfg.title]} onEdit={() => setEditor({ item: null })} />
+      <div className="layout">
+        <WebSidebar active={cfg.active} />
+        <div className="content">
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 16 }}>
+            <div>
+              <div className="h1">{cfg.title}</div>
+              <div style={{ font: "500 13px/18px var(--font-pretendard)", color: "var(--on-surface-neutral-50)", marginTop: 4 }}>
+                {cfg.subtitle}
+              </div>
+            </div>
+            <button className="adot-btn primary" style={{ marginLeft: "auto", height: 34, padding: "0 12px", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => setEditor({ item: null })}>
+              <LIcon name="plus" size={14} />{cfg.addLabel}
+            </button>
+          </div>
+
+          <div className="collection-grid">
+            {cfg.items.map(item => {
+              const row = cfg.render(item);
+              return (
+                <button key={item.id} className="collection-card" onClick={() => setEditor({ item })}>
+                  {row.avatar}
+                  <div>
+                    <div className="collection-title">{row.title}</div>
+                    <div className="collection-meta">{row.meta}</div>
+                    <div className="collection-body">{row.body}</div>
+                  </div>
+                  <LIcon name="pencil" size={14} color="var(--icon-dim)" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      {editor && (
+        <WebEntityEditor
+          entity={cfg.entity}
+          item={editor.item}
+          title={editor.item ? `${cfg.title} 수정` : cfg.addLabel}
+          onClose={() => setEditor(null)}
+          onSaved={onDataChanged}
+        />
+      )}
+    </div>
+  );
+}
+
+Object.assign(window, { WebDashboard, WebSidebar, WebTopbar, WebCollectionPage });
