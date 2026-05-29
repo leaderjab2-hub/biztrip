@@ -44,9 +44,7 @@ function ItineraryTable({ date, personFilter, onEdit }) {
   for (let i = 0; i < items.length; i++) {
     rows.push({ kind: "item", it: items[i] });
     const next = items[i + 1];
-    const currentConfirmed = (items[i].status || "confirmed") === "confirmed";
-    const nextConfirmed = (next?.status || "confirmed") === "confirmed";
-    if (next && currentConfirmed && nextConfirmed && items[i].placeId && next.placeId && items[i].placeId !== next.placeId) {
+    if (next && items[i].placeId && next.placeId && items[i].placeId !== next.placeId) {
       const route = window.routeBetween(date, items[i].id, next.id);
       if (route) {
         rows.push({ kind: "travel", route });
@@ -113,16 +111,11 @@ function ItineraryTable({ date, personFilter, onEdit }) {
           const it = r.it;
           const place = it.placeId ? window.TD.getPlace(it.placeId) : null;
           return (
-            <tr key={idx} className={it.type === "meeting" ? "has-meeting" : ""} style={it.status === "planned" ? { opacity: 0.72 } : null}>
+            <tr key={idx} className={it.type === "meeting" ? "has-meeting" : ""}>
               <td className="time">
                 {it.start}{it.end ? <span style={{ color: "var(--on-surface-neutral-50)", fontWeight: 400 }}> – {it.end}</span> : null}
               </td>
-              <td>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
-                  <TypeChip type={it.type} />
-                  <StatusChip status={it.status || "confirmed"} />
-                </div>
-              </td>
+              <td><TypeChip type={it.type} /></td>
               <td>
                 <div className="ttl">{it.title}</div>
                 <div className="sub">{it.desc}</div>

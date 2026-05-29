@@ -97,15 +97,9 @@ function parseEmbeddedMeta(text) {
 
 function mapSchedule(row) {
   const description = String(row.description || "");
-  const pick = (tag) => {
-    const match = description.match(new RegExp(`\\[\\[${tag}\\]\\]([\\s\\S]*?)\\[\\[\\/${tag}\\]\\]`));
-    return match ? match[1].trim() : "";
-  };
-  const placeNote = pick("PLACE_NOTE");
-  const status = pick("SCHEDULE_STATUS") || "confirmed";
-  const desc = description
-    .replace(/\[\[(PLACE_NOTE|SCHEDULE_STATUS)\]\][\s\S]*?\[\[\/\1\]\]\s*/g, "")
-    .trim();
+  const match = description.match(/\[\[PLACE_NOTE\]\]([\s\S]*?)\[\[\/PLACE_NOTE\]\]/);
+  const placeNote = match ? match[1].trim() : "";
+  const desc = description.replace(/\[\[PLACE_NOTE\]\][\s\S]*?\[\[\/PLACE_NOTE\]\]\s*/g, "").trim();
   return {
     id: row.id,
     date: row.date,
@@ -117,7 +111,6 @@ function mapSchedule(row) {
     attendees: row.attendees || [],
     desc,
     placeNote,
-    status,
     meetingId: row.meeting_id,
     eventId: row.event_id,
     bufferMin: row.buffer_min,
@@ -176,9 +169,7 @@ function rebuildHelpers(data) {
     getPerson: (id) => data.PEOPLE.find(p => p.id === id),
     getPlace: (id) => data.PLACES[id],
     getDayItems: (date) => data.SCHEDULE.filter(s => s.date === date).sort((a,b) => a.start.localeCompare(b.start)),
-    getConfirmedDayItems: (date) => data.SCHEDULE.filter(s => s.date === date && (s.status || "confirmed") === "confirmed").sort((a,b) => a.start.localeCompare(b.start)),
     getPersonItems: (date, personId) => data.SCHEDULE.filter(s => s.date === date && s.attendees.includes(personId)).sort((a,b) => a.start.localeCompare(b.start)),
-    getConfirmedPersonItems: (date, personId) => data.SCHEDULE.filter(s => s.date === date && s.attendees.includes(personId) && (s.status || "confirmed") === "confirmed").sort((a,b) => a.start.localeCompare(b.start)),
     getTripStats: () => ({
       people: data.PEOPLE.length,
       meetings: Object.keys(data.MEETINGS).length,
@@ -188,8 +179,8 @@ function rebuildHelpers(data) {
     }),
     getRoutesForDay: (date, personId = "all") => {
       const items = personId === "all"
-        ? data.SCHEDULE.filter(s => s.date === date && (s.status || "confirmed") === "confirmed").sort((a, b) => a.start.localeCompare(b.start))
-        : data.SCHEDULE.filter(s => s.date === date && s.attendees.includes(personId) && (s.status || "confirmed") === "confirmed").sort((a, b) => a.start.localeCompare(b.start));
+        ? data.SCHEDULE.filter(s => s.date === date).sort((a, b) => a.start.localeCompare(b.start))
+        : data.SCHEDULE.filter(s => s.date === date && s.attendees.includes(personId)).sort((a, b) => a.start.localeCompare(b.start));
       const segments = [];
       for (let i = 0; i < items.length - 1; i++) {
         const from = items[i];
@@ -324,8 +315,7 @@ function toDbRow(entity, item) {
   }
   if (entity === "schedule") {
     const placeBlock = item.placeNote ? `[[PLACE_NOTE]]${String(item.placeNote).trim()}[[/PLACE_NOTE]]` : "";
-    const statusBlock = `[[SCHEDULE_STATUS]]${String(item.status || "confirmed").trim()}[[/SCHEDULE_STATUS]]`;
-    const description = [statusBlock, placeBlock, item.desc || ""].filter(Boolean).join("\n\n").trim();
+    const description = [placeBlock, item.desc || ""].filter(Boolean).join("\n\n").trim();
     return { id: item.id, trip_id: BIZTRIP_ID, date: item.date, start_time: item.start, end_time: item.end, type: item.type, title: item.title, place_id: item.placeId, attendees: item.attendees || [], description, meeting_id: item.meetingId, event_id: item.eventId, buffer_min: item.bufferMin || 10 };
   }
   if (entity === "meetings") return { id: item.id, trip_id: BIZTRIP_ID, name: item.name, counterpart: item.counterpart, counterpart_people: item.counterpartPeople || [], objective: item.objective, agenda: item.agenda || [], talking_points: item.talkingPoints || [], cautions: item.cautions || [], follow_ups: item.followUps || [], memo: item.memo };

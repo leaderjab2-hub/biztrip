@@ -118,20 +118,17 @@ function MobileDay({ personId = "p-roy", date = "2026-06-11", onChangeDay, onOpe
         {items.map((it, idx) => {
           const place = it.placeId ? window.TD.getPlace(it.placeId) : null;
           const next = items[idx + 1];
-          const route = next && (it.status || "confirmed") === "confirmed" && (next.status || "confirmed") === "confirmed"
-            ? window.routeBetween(date, it.id, next.id)
-            : null;
+          const route = next ? window.routeBetween(date, it.id, next.id) : null;
           const visibleRoute = route && !route.inferred ? route : null;
           return (
             <React.Fragment key={it.id}>
-              <div className={`m-card ${it.synthetic ? "m-hotel-anchor" : ""} ${it.type === "meeting" ? "m-meeting-schedule-card" : ""}`} style={{ margin: 0, marginBottom: visibleRoute ? 0 : 10, opacity: it.status === "planned" ? 0.76 : 1 }}>
+              <div className={`m-card ${it.synthetic ? "m-hotel-anchor" : ""} ${it.type === "meeting" ? "m-meeting-schedule-card" : ""}`} style={{ margin: 0, marginBottom: visibleRoute ? 0 : 10 }}>
                 <div className="m-card-pad">
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                     <span style={{ font: "700 13px/16px var(--font-pretendard)", fontVariantNumeric: "tabular-nums" }}>
                       {it.start} – {it.end}
                     </span>
                     <TypeChip type={it.type} />
-                    <StatusChip status={it.status || "confirmed"} />
                   </div>
                   <div style={{ font: "600 15px/20px var(--font-pretendard)" }}>{it.title}</div>
                   {place && (

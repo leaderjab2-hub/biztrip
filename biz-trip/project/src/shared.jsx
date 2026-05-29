@@ -42,7 +42,6 @@ function StatusChip({ status }) {
   const map = {
     draft:     { label: "작성중", tone: "neutral" },
     confirmed: { label: "확정",   tone: "blue"    },
-    planned:   { label: "예정",   tone: "lemon"   },
     ongoing:   { label: "진행중", tone: "lime"    },
     completed: { label: "종료",   tone: "neutral" },
   };
