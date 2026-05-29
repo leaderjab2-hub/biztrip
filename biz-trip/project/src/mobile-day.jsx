@@ -1,6 +1,6 @@
 // Mobile share — Day detail with route segments inline
 
-function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay, onOpenMeeting }) {
+function MobileDay({ personId = "p-roy", date = "2026-06-11", onChangeDay, onOpenMeeting }) {
   const rawItems = window.TD.getPersonItems(date, personId);
   const person = window.TD.getPerson(personId);
   const day = window.TRIP_DATA.DAYS.find(d => d.date === date);

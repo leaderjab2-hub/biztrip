@@ -34,7 +34,7 @@ function MeetingMobileBullets({ items, tone = "default", numbered }) {
   );
 }
 
-function MobileMeeting({ meetingId = "m-smci-exec", personId = "p-my", onBack }) {
+function MobileMeeting({ meetingId = "m-smci-exec", personId = "p-roy", onBack }) {
   const { MEETINGS, SCHEDULE } = window.TRIP_DATA;
   const meeting = MEETINGS[meetingId];
   const sched = SCHEDULE.find(s => s.meetingId === meetingId);

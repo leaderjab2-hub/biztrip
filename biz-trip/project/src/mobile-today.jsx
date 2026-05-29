@@ -2,7 +2,7 @@
 // Hero card: NEXT-UP item with route + recommended departure
 // Then full timeline of today
 
-function MobileToday({ personId = "p-ceo", date = "2026-06-11", nowHHMM = "10:42" }) {
+function MobileToday({ personId = "p-roy", date = "2026-06-11", nowHHMM = "10:42" }) {
   const items = window.TD.getPersonItems(date, personId);
   const person = window.TD.getPerson(personId);
   const day = window.TRIP_DATA.DAYS.find(d => d.date === date);

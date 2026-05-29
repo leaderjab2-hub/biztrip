@@ -1,7 +1,7 @@
 // Executive Trip Planner
 
 const APP_DEFAULTS = {
-  viewAs: "p-my",
+  viewAs: "p-roy",
   day: "2026-06-01",
   nowHHMM: "10:42",
   accent: "mono",

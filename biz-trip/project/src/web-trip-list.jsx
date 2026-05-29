@@ -121,7 +121,7 @@ function WebTripList({ accent = "mono" }) {
                 </div>
                 <div className="cb">
                   <div style={{ font: "600 13px/16px var(--font-pretendard)" }}>{activeTrip.title}</div>
-                  <div className="share-box">/share/trips/{activeTrip.shareToken}?personId=p-ceo</div>
+                  <div className="share-box">/share/trips/{activeTrip.shareToken}?personId=p-roy</div>
                   <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                     <button className="adot-btn line" style={{ height: 32, fontSize: 12 }}>CEO 링크</button>
                     <button className="adot-btn line" style={{ height: 32, fontSize: 12 }}>CFO 링크</button>

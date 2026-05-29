@@ -1,6 +1,6 @@
 // Mobile share — Pre-trip briefing (full trip overview at a glance)
 
-function MobileBriefing({ personId = "p-ceo", onOpenDays, onOpenMeetings, onOpenMeeting }) {
+function MobileBriefing({ personId = "p-roy", onOpenDays, onOpenMeetings, onOpenMeeting }) {
   const { TRIP, HOTEL, FLIGHTS, DAYS, SCHEDULE, MEETINGS } = window.TRIP_DATA;
   const passengerMatches = (entry) => entry === personId || entry?.personId === personId;
   const myFlights = FLIGHTS.filter(f => (f.passengers || []).some(passengerMatches));

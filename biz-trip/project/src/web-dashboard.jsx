@@ -13,8 +13,8 @@ function WebSidebar({ active = "dashboard" }) {
     { id: "events",     label: "행사",          icon: "ticket",           count: Object.keys(EVENTS).length, href: "/events" },
     { id: "routes",     label: "이동 동선",     icon: "route",            count: null, href: "/routes" },
     { id: "admin",      label: "데이터 편집",   icon: "database",         count: null, href: "/admin" },
-    { id: "report",     label: "브리핑 리포트", icon: "file-text",        count: null, href: "/share?screen=briefing&personId=p-my&day=2026-06-01&now=10:42" },
-    { id: "share",      label: "공유 링크",     icon: "share-2",          count: null, href: "/share?personId=p-my&day=2026-06-01&now=10:42" },
+    { id: "report",     label: "브리핑 리포트", icon: "file-text",        count: null, href: "/share?screen=briefing&personId=p-roy&day=2026-06-01&now=10:42" },
+    { id: "share",      label: "공유 링크",     icon: "share-2",          count: null, href: "/share?personId=p-roy&day=2026-06-01&now=10:42" },
   ];
   return (
     <div className="sidebar">
