@@ -24,7 +24,10 @@ function prepareAdminDraft(entity, item) {
     return { ...base, placeName: base.placeName || place?.name || "", placeMapUrl: base.placeMapUrl || place?.mapUrl || "" };
   }
   if (entity === "flights") {
-    return { ...base, dep: { mapUrl: "", ...(base.dep || {}) }, arr: { mapUrl: "", ...(base.arr || {}) } };
+    return { ...base, dep: { mapUrl: "", ...(base.dep || {}) }, arr: { mapUrl: "", ...(base.arr || {}) }, passengers: window.personRefIds(base.passengers) };
+  }
+  if (entity === "hotels") {
+    return { ...base, guests: window.personRefIds(base.guests) };
   }
   return base;
 }

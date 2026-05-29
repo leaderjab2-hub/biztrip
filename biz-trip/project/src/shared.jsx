@@ -78,6 +78,17 @@ function minToHHMM(n) {
 }
 function diffMin(a, b) { return Math.max(0, hhmmToMin(b) - hhmmToMin(a)); }
 
+function personRefId(entry) {
+  return typeof entry === "string" ? entry : (entry?.personId || entry?.id || "");
+}
+
+function personRefIds(value) {
+  const refs = value || [];
+  const explicitIds = refs.filter(entry => typeof entry === "string").filter(Boolean);
+  const source = explicitIds.length ? explicitIds : refs.map(personRefId);
+  return Array.from(new Set(source.filter(Boolean)));
+}
+
 // Route lookup
 function routeBetween(date, fromSched, toSched) {
   return window.TRIP_DATA.ROUTES.find(r => r.date === date && r.fromSched === fromSched && r.toSched === toSched)
@@ -104,5 +115,5 @@ function openMapUrl(url, fallbackQuery) {
 Object.assign(window, {
   LIcon, Avatar, AvatarStack, TypeChip, StatusChip,
   nextUpFor, currentFor, hhmmToMin, minToHHMM, diffMin, routeBetween,
-  buildGoogleMapsSearchUrl, normalizeMapUrl, openMapUrl,
+  personRefId, personRefIds, buildGoogleMapsSearchUrl, normalizeMapUrl, openMapUrl,
 });

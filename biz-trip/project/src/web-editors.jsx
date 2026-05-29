@@ -35,6 +35,12 @@ function normalizeFormDraft(entity, draft) {
       next[key] = (next[key] || []).map(v => String(v || "").trim()).filter(Boolean);
     });
   }
+  if (entity === "flights") {
+    next.passengers = window.personRefIds(next.passengers);
+  }
+  if (entity === "hotels") {
+    next.guests = window.personRefIds(next.guests);
+  }
   return next;
 }
 
@@ -270,7 +276,7 @@ function EntityForm({ entity, draft, setDraft }) {
         <FormField label="도착 공항"><TextInput value={draft.arr?.airport} onChange={v => setNested("arr", "airport", v)} /></FormField>
         <FormField label="도착 시각"><TextInput type="datetime-local" value={draft.arr?.time} onChange={v => setNested("arr", "time", v)} /></FormField>
         <FormField label="도착 지도 링크" wide><TextInput value={draft.arr?.mapUrl} onChange={v => setNested("arr", "mapUrl", v)} placeholder="Google Maps 링크 또는 공항명 검색 링크" /></FormField>
-        <FormField label="탑승자" wide><AttendeePicker value={draft.passengers} onChange={v => update("passengers", v)} /></FormField>
+        <FormField label="탑승자" wide><AttendeePicker value={window.personRefIds(draft.passengers)} onChange={v => update("passengers", v)} /></FormField>
         <FormField label="메모" wide><TextAreaInput rows={3} value={draft.memo} onChange={v => update("memo", v)} /></FormField>
       </div>
     );
@@ -287,7 +293,7 @@ function EntityForm({ entity, draft, setDraft }) {
         <FormField label="체크아웃"><TextInput type="date" value={draft.checkout} onChange={v => update("checkout", v)} /></FormField>
         <FormField label="예약번호"><TextInput value={draft.bookingRef} onChange={v => update("bookingRef", v)} /></FormField>
         <FormField label="조식"><SelectInput value={draft.breakfast ? "yes" : "no"} onChange={v => update("breakfast", v === "yes")} options={[{ value: "yes", label: "포함" }, { value: "no", label: "미포함" }]} /></FormField>
-        <FormField label="투숙자" wide><AttendeePicker value={draft.guests} onChange={v => update("guests", v)} /></FormField>
+        <FormField label="투숙자" wide><AttendeePicker value={window.personRefIds(draft.guests)} onChange={v => update("guests", v)} /></FormField>
         <FormField label="메모" wide><TextAreaInput rows={3} value={draft.memo} onChange={v => update("memo", v)} /></FormField>
       </div>
     );
@@ -361,7 +367,10 @@ function WebEntityEditor({ entity, item, title, defaults, onClose, onSaved, allo
       return { ...base, placeName: base.placeName || place?.name || "", placeMapUrl: base.placeMapUrl || place?.mapUrl || "" };
     }
     if (entity === "flights") {
-      return { ...base, dep: { mapUrl: "", ...(base.dep || {}) }, arr: { mapUrl: "", ...(base.arr || {}) } };
+      return { ...base, dep: { mapUrl: "", ...(base.dep || {}) }, arr: { mapUrl: "", ...(base.arr || {}) }, passengers: window.personRefIds(base.passengers) };
+    }
+    if (entity === "hotels") {
+      return { ...base, guests: window.personRefIds(base.guests) };
     }
     return base;
   });
