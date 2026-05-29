@@ -41,6 +41,9 @@ function normalizeFormDraft(entity, draft) {
   if (entity === "hotels") {
     next.guests = window.personRefIds(next.guests);
   }
+  if (entity === "schedule") {
+    next.status = next.status || "confirmed";
+  }
   if (entity === "routes") {
     next.id = window.routeSegmentId?.(next) || next.id || window.localId("rou");
   }
@@ -53,6 +56,7 @@ function editorNewItem(entity, defaults = {}) {
   if (entity === "schedule") return {
     id,
     date: window.TRIP_DATA.DAYS[0]?.date,
+    status: "confirmed",
     start: "09:00",
     end: "10:00",
     type: "meeting",
@@ -251,6 +255,7 @@ function EntityForm({ entity, draft, setDraft }) {
       <div className="form-grid">
         <FormField label="날짜"><SelectInput value={draft.date} onChange={v => update("date", v)} options={days} /></FormField>
         <FormField label="유형"><SelectInput value={draft.type} onChange={v => update("type", v)} options={[["meeting","미팅"],["event","행사"],["meal","식사"],["flight","항공"],["hotel","호텔"],["transfer","이동"],["personal","개인"]].map(([value,label]) => ({ value, label }))} /></FormField>
+        <FormField label="상태"><SelectInput value={draft.status || "confirmed"} onChange={v => update("status", v)} options={[{ value: "confirmed", label: "확정" }, { value: "planned", label: "예정" }]} /></FormField>
         <FormField label="시작"><TextInput type="time" value={draft.start} onChange={v => update("start", v)} /></FormField>
         <FormField label="종료"><TextInput type="time" value={draft.end} onChange={v => update("end", v)} /></FormField>
         <FormField label="제목" wide><TextInput value={draft.title} onChange={v => update("title", v)} /></FormField>

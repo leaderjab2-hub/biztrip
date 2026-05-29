@@ -84,34 +84,34 @@ const DAYS = [
 ];
 
 const SCHEDULE = [
-  { id: "s-101", date: "2026-06-01", start: "09:00", end: "09:30", type: "transfer", title: "공항 이동 및 출국", placeId: "pl-icn", attendees: ALL_ATTENDEES, desc: "KE 2021, ICN 10:30 → TPE 12:10" },
-  { id: "s-102", date: "2026-06-01", start: "10:30", end: "12:10", type: "flight", title: "출국 항공편", placeId: "pl-icn", attendees: ALL_ATTENDEES, desc: "대한항공 KE 2021" },
-  { id: "s-103", date: "2026-06-01", start: "12:30", end: "13:00", type: "hotel", title: "호텔 이동 및 체크인", placeId: "pl-caesar", attendees: ALL_ATTENDEES, desc: "Caesar Park Taipei" },
-  { id: "s-104", date: "2026-06-01", start: "14:00", end: "14:30", type: "transfer", title: "SMCI 행사장 이동", placeId: "pl-mandarin", attendees: ALL_ATTENDEES, desc: "Mandarin Oriental Taipei 이동" },
-  { id: "s-105", date: "2026-06-01", start: "16:00", end: "16:45", type: "meeting", title: "SMCI Executive Meeting", placeId: "pl-mandarin", attendees: ALL_ATTENDEES, desc: "SKT GPUaaS 구축 수요 및 SMCI 공급 방안 협의", meetingId: "m-smci-exec" },
-  { id: "s-106", date: "2026-06-01", start: "17:00", end: "17:30", type: "meeting", title: "Verda Meeting", placeId: "pl-mandarin", attendees: ALL_ATTENDEES, desc: "Verda 소개 및 SKT GPUaaS 사업기회 논의", meetingId: "m-verda" },
-  { id: "s-107", date: "2026-06-01", start: "18:30", end: "21:00", type: "event", title: "NVIDIA Korea Partner Night", placeId: "pl-banjin", attendees: ALL_ATTENDEES, desc: "파트너 네트워킹 만찬" },
+  { id: "s-101", date: "2026-06-01", start: "09:00", end: "09:30", type: "transfer", status: "confirmed", title: "공항 이동 및 출국", placeId: "pl-icn", attendees: ALL_ATTENDEES, desc: "KE 2021, ICN 10:30 → TPE 12:10" },
+  { id: "s-102", date: "2026-06-01", start: "10:30", end: "12:10", type: "flight", status: "confirmed", title: "출국 항공편", placeId: "pl-icn", attendees: ALL_ATTENDEES, desc: "대한항공 KE 2021" },
+  { id: "s-103", date: "2026-06-01", start: "12:30", end: "13:00", type: "hotel", status: "confirmed", title: "호텔 이동 및 체크인", placeId: "pl-caesar", attendees: ALL_ATTENDEES, desc: "Caesar Park Taipei" },
+  { id: "s-104", date: "2026-06-01", start: "14:00", end: "14:30", type: "transfer", status: "confirmed", title: "SMCI 행사장 이동", placeId: "pl-mandarin", attendees: ALL_ATTENDEES, desc: "Mandarin Oriental Taipei 이동" },
+  { id: "s-105", date: "2026-06-01", start: "16:00", end: "16:45", type: "meeting", status: "confirmed", title: "SMCI Executive Meeting", placeId: "pl-mandarin", attendees: ALL_ATTENDEES, desc: "SKT GPUaaS 구축 수요 및 SMCI 공급 방안 협의", meetingId: "m-smci-exec" },
+  { id: "s-106", date: "2026-06-01", start: "17:00", end: "17:30", type: "meeting", status: "confirmed", title: "Verda Meeting", placeId: "pl-mandarin", attendees: ALL_ATTENDEES, desc: "Verda 소개 및 SKT GPUaaS 사업기회 논의", meetingId: "m-verda" },
+  { id: "s-107", date: "2026-06-01", start: "18:30", end: "21:00", type: "event", status: "confirmed", title: "NVIDIA Korea Partner Night", placeId: "pl-banjin", attendees: ALL_ATTENDEES, desc: "파트너 네트워킹 만찬" },
 
-  { id: "s-201", date: "2026-06-02", start: "09:30", end: "12:00", type: "event", title: "NVIDIA APAC NCP Summit", placeId: "pl-grand-hilai", attendees: ALL_ATTENDEES, desc: "Grand Hilai Taipei, 3rd Floor" },
-  { id: "s-202", date: "2026-06-02", start: "12:00", end: "13:00", type: "meeting", title: "Lunch Meeting", placeId: "pl-unknown", attendees: ALL_ATTENDEES, desc: "상세 미정", meetingId: "m-lunch" },
-  { id: "s-203", date: "2026-06-02", start: "13:00", end: "14:30", type: "meeting", title: "SMCI 부스 VIP투어 & VR 미팅", placeId: "pl-nangang-h1", attendees: ALL_ATTENDEES, desc: "SMCI VR 시리즈 시제품 투어 및 GPUaaS 구축 관련 기술 협의", meetingId: "m-smci-vr" },
-  { id: "s-204", date: "2026-06-02", start: "13:00", end: "14:00", type: "event", title: "NCP 기술 세션", placeId: "pl-unknown", attendees: ALL_ATTENDEES, desc: "시간 및 장소 상세 확인 필요" },
-  { id: "s-205", date: "2026-06-02", start: "14:00", end: "15:00", type: "event", title: "Petasus 기술 세션", placeId: "pl-gmi", attendees: ALL_ATTENDEES, desc: "GMI Booth, Hall 2 Booth R0302" },
-  { id: "s-206", date: "2026-06-02", start: "15:30", end: "17:00", type: "event", title: "NVIDIA APAC NCP Summit", placeId: "pl-grand-hilai", attendees: ALL_ATTENDEES, desc: "오후 세션" },
-  { id: "s-207", date: "2026-06-02", start: "18:00", end: "18:40", type: "meal", title: "NVIDIA NCPs Reception", placeId: "pl-mandarin", attendees: ALL_ATTENDEES, desc: "Mandarin Oriental, Taipei Ballroom" },
-  { id: "s-208", date: "2026-06-02", start: "18:50", end: "19:20", type: "meal", title: "저녁 만찬 일정 2", placeId: "", attendees: ALL_ATTENDEES, desc: "장소 및 상세 일정 입력 예정" },
-  { id: "s-209", date: "2026-06-02", start: "19:30", end: "21:00", type: "meal", title: "Ampere VIP Event", placeId: "", attendees: ALL_ATTENDEES, desc: "장소 및 상세 일정 입력 예정" },
+  { id: "s-201", date: "2026-06-02", start: "09:30", end: "12:00", type: "event", status: "confirmed", title: "NVIDIA APAC NCP Summit", placeId: "pl-grand-hilai", attendees: ALL_ATTENDEES, desc: "Grand Hilai Taipei, 3rd Floor" },
+  { id: "s-202", date: "2026-06-02", start: "12:00", end: "13:00", type: "meeting", status: "confirmed", title: "Lunch Meeting", placeId: "pl-unknown", attendees: ALL_ATTENDEES, desc: "상세 미정", meetingId: "m-lunch" },
+  { id: "s-203", date: "2026-06-02", start: "13:00", end: "14:30", type: "meeting", status: "confirmed", title: "SMCI 부스 VIP투어 & VR 미팅", placeId: "pl-nangang-h1", attendees: ALL_ATTENDEES, desc: "SMCI VR 시리즈 시제품 투어 및 GPUaaS 구축 관련 기술 협의", meetingId: "m-smci-vr" },
+  { id: "s-204", date: "2026-06-02", start: "13:00", end: "14:00", type: "event", status: "planned", title: "NCP 기술 세션", placeId: "pl-unknown", attendees: ALL_ATTENDEES, desc: "시간 및 장소 상세 확인 필요" },
+  { id: "s-205", date: "2026-06-02", start: "14:00", end: "15:00", type: "event", status: "planned", title: "Petasus 기술 세션", placeId: "pl-gmi", attendees: ALL_ATTENDEES, desc: "GMI Booth, Hall 2 Booth R0302" },
+  { id: "s-206", date: "2026-06-02", start: "15:30", end: "17:00", type: "event", status: "confirmed", title: "NVIDIA APAC NCP Summit", placeId: "pl-grand-hilai", attendees: ALL_ATTENDEES, desc: "오후 세션" },
+  { id: "s-207", date: "2026-06-02", start: "18:00", end: "18:40", type: "meal", status: "confirmed", title: "NVIDIA NCPs Reception", placeId: "pl-mandarin", attendees: ALL_ATTENDEES, desc: "Mandarin Oriental, Taipei Ballroom" },
+  { id: "s-208", date: "2026-06-02", start: "18:50", end: "19:20", type: "meal", status: "planned", title: "저녁 만찬 일정 2", placeId: "", attendees: ALL_ATTENDEES, desc: "장소 및 상세 일정 입력 예정" },
+  { id: "s-209", date: "2026-06-02", start: "19:30", end: "21:00", type: "meal", status: "planned", title: "Ampere VIP Event", placeId: "", attendees: ALL_ATTENDEES, desc: "장소 및 상세 일정 입력 예정" },
 
-  { id: "s-301", date: "2026-06-03", start: "10:00", end: "11:00", type: "meeting", title: "NVIDIA Meeting", placeId: "pl-tainan-room", attendees: ALL_ATTENDEES, desc: "NCP 기반 세일즈 채널 및 GPU 인프라 구매 수요 협의", meetingId: "m-nvidia" },
-  { id: "s-302", date: "2026-06-03", start: "12:00", end: "13:00", type: "meeting", title: "Intel Lunch Meeting", placeId: "pl-unknown", attendees: ALL_ATTENDEES, desc: "세부 내용 확인 필요", meetingId: "m-intel" },
-  { id: "s-303", date: "2026-06-03", start: "13:30", end: "14:00", type: "meeting", title: "GMI Cloud Meeting", placeId: "pl-gmi", attendees: ALL_ATTENDEES, desc: "공급조건 및 계약 검토 일정 협의", meetingId: "m-gmi" },
-  { id: "s-304", date: "2026-06-03", start: "15:00", end: "15:20", type: "event", title: "GCT 부스 VIP 투어", placeId: "pl-gct", attendees: ALL_ATTENDEES, desc: "GCT Booth 1F" },
-  { id: "s-305", date: "2026-06-03", start: "15:30", end: "16:20", type: "meeting", title: "GCT Meeting", placeId: "pl-gct", attendees: ALL_ATTENDEES, desc: "AI 서버 공급 Capacity 및 납기, 가격 경쟁력 확인", meetingId: "m-gct" },
-  { id: "s-306", date: "2026-06-03", start: "17:00", end: "18:00", type: "meeting", title: "VAST Meeting", placeId: "pl-pause", attendees: ALL_ATTENDEES, desc: "해인클러스터 운영 관련 VAST VoC 및 향후 스토리지 구성 논의", meetingId: "m-vast" },
-  { id: "s-307", date: "2026-06-03", start: "18:30", end: "20:00", type: "meal", title: "구성원 만찬 예정", placeId: "pl-unknown", attendees: ALL_ATTENDEES, desc: "시간 임시 입력, 상세 확정 필요" },
+  { id: "s-301", date: "2026-06-03", start: "10:00", end: "11:00", type: "meeting", status: "confirmed", title: "NVIDIA Meeting", placeId: "pl-tainan-room", attendees: ALL_ATTENDEES, desc: "NCP 기반 세일즈 채널 및 GPU 인프라 구매 수요 협의", meetingId: "m-nvidia" },
+  { id: "s-302", date: "2026-06-03", start: "12:00", end: "13:00", type: "meeting", status: "confirmed", title: "Intel Lunch Meeting", placeId: "pl-unknown", attendees: ALL_ATTENDEES, desc: "세부 내용 확인 필요", meetingId: "m-intel" },
+  { id: "s-303", date: "2026-06-03", start: "13:30", end: "14:00", type: "meeting", status: "confirmed", title: "GMI Cloud Meeting", placeId: "pl-gmi", attendees: ALL_ATTENDEES, desc: "공급조건 및 계약 검토 일정 협의", meetingId: "m-gmi" },
+  { id: "s-304", date: "2026-06-03", start: "15:00", end: "15:20", type: "event", status: "confirmed", title: "GCT 부스 VIP 투어", placeId: "pl-gct", attendees: ALL_ATTENDEES, desc: "GCT Booth 1F" },
+  { id: "s-305", date: "2026-06-03", start: "15:30", end: "16:20", type: "meeting", status: "confirmed", title: "GCT Meeting", placeId: "pl-gct", attendees: ALL_ATTENDEES, desc: "AI 서버 공급 Capacity 및 납기, 가격 경쟁력 확인", meetingId: "m-gct" },
+  { id: "s-306", date: "2026-06-03", start: "17:00", end: "18:00", type: "meeting", status: "confirmed", title: "VAST Meeting", placeId: "pl-pause", attendees: ALL_ATTENDEES, desc: "해인클러스터 운영 관련 VAST VoC 및 향후 스토리지 구성 논의", meetingId: "m-vast" },
+  { id: "s-307", date: "2026-06-03", start: "18:30", end: "20:00", type: "meal", status: "planned", title: "구성원 만찬 예정", placeId: "pl-unknown", attendees: ALL_ATTENDEES, desc: "시간 임시 입력, 상세 확정 필요" },
 
-  { id: "s-401", date: "2026-06-04", start: "12:00", end: "12:30", type: "transfer", title: "공항 이동 및 출국", placeId: "pl-tpe", attendees: ALL_ATTENDEES, desc: "귀국 항공편 탑승을 위한 공항 이동" },
-  { id: "s-402", date: "2026-06-04", start: "15:30", end: "19:05", type: "flight", title: "귀국 항공편", placeId: "pl-tpe", attendees: ALL_ATTENDEES, desc: "KE 5694, 중화항공 운항, TPE 15:30 → ICN 19:05" },
+  { id: "s-401", date: "2026-06-04", start: "12:00", end: "12:30", type: "transfer", status: "confirmed", title: "공항 이동 및 출국", placeId: "pl-tpe", attendees: ALL_ATTENDEES, desc: "귀국 항공편 탑승을 위한 공항 이동" },
+  { id: "s-402", date: "2026-06-04", start: "15:30", end: "19:05", type: "flight", status: "confirmed", title: "귀국 항공편", placeId: "pl-tpe", attendees: ALL_ATTENDEES, desc: "KE 5694, 중화항공 운항, TPE 15:30 → ICN 19:05" },
 ];
 
 const MEETINGS = {
@@ -297,7 +297,9 @@ window.TD = {
   getPerson: (id) => PEOPLE.find(p => p.id === id),
   getPlace: (id) => PLACES[id],
   getDayItems: (date) => SCHEDULE.filter(s => s.date === date).sort((a,b) => a.start.localeCompare(b.start)),
+  getConfirmedDayItems: (date) => SCHEDULE.filter(s => s.date === date && (s.status || "confirmed") === "confirmed").sort((a,b) => a.start.localeCompare(b.start)),
   getPersonItems: (date, personId) => SCHEDULE.filter(s => s.date === date && s.attendees.includes(personId)).sort((a,b) => a.start.localeCompare(b.start)),
+  getConfirmedPersonItems: (date, personId) => SCHEDULE.filter(s => s.date === date && s.attendees.includes(personId) && (s.status || "confirmed") === "confirmed").sort((a,b) => a.start.localeCompare(b.start)),
   getTripStats: () => ({
     people: PEOPLE.length,
     meetings: Object.keys(MEETINGS).length,
@@ -306,7 +308,7 @@ window.TD = {
     scheduleItems: SCHEDULE.length,
   }),
   getRoutesForDay: (date, personId = "all") => {
-    const items = personId === "all" ? window.TD.getDayItems(date) : window.TD.getPersonItems(date, personId);
+    const items = personId === "all" ? window.TD.getConfirmedDayItems(date) : window.TD.getConfirmedPersonItems(date, personId);
     const explicitRoutes = window.TRIP_DATA.ROUTES || [];
     const segments = [];
     for (let i = 0; i < items.length - 1; i++) {
