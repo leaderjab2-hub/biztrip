@@ -211,7 +211,14 @@ function ShareApp({ route, settings }) {
             onOpenMeeting={(id) => nextScreen("meeting", { meetingId: id })}
           />
         )}
-        {screen === "days" && <MobileDay personId={personId} date={day} onChangeDay={(nextDay) => openDays(nextDay)} />}
+        {screen === "days" && (
+          <MobileDay
+            personId={personId}
+            date={day}
+            onChangeDay={(nextDay) => openDays(nextDay)}
+            onOpenMeeting={(id) => nextScreen("meeting", { meetingId: id })}
+          />
+        )}
         {screen === "meetings" && <MobileMeetingsOverview personId={personId} onOpenMeeting={(id) => nextScreen("meeting", { meetingId: id })} />}
         {screen === "meeting" && <MobileMeeting meetingId={meetingId} personId={personId} onBack={() => nextScreen("meetings")} />}
       </div>

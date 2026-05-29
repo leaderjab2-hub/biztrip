@@ -1,6 +1,6 @@
 // Mobile share — Day detail with route segments inline
 
-function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay }) {
+function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay, onOpenMeeting }) {
   const rawItems = window.TD.getPersonItems(date, personId);
   const person = window.TD.getPerson(personId);
   const day = window.TRIP_DATA.DAYS.find(d => d.date === date);
@@ -93,10 +93,12 @@ function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay }) {
               <span className="tone-chip tone-neutral">{knownPlaceStops.length}개 장소</span>
             </div>
             {knownPlaceStops.length > 0 && (
-              <div style={{ marginTop: 12, display: "flex", gap: 6, overflowX: "auto", paddingBottom: 2 }}>
+              <div className="m-place-strip">
                 {knownPlaceStops.map((place, idx) => (
-                  <button key={`${place.id}-${idx}`} type="button" onClick={() => window.openMapUrl(place.mapUrl, place.name)} style={{ flexShrink: 0, height: 30, padding: "0 10px", border: "1px solid var(--divider-10)", borderRadius: 8, background: "var(--bg-00)", font: "700 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-70)" }}>
-                    {idx + 1}. {place.name}
+                  <button key={`${place.id}-${idx}`} type="button" onClick={() => window.openMapUrl(place.mapUrl, place.name)}>
+                    <span>{idx + 1}</span>
+                    <b>{place.name}</b>
+                    <LIcon name="map" size={12} />
                   </button>
                 ))}
               </div>
@@ -120,7 +122,7 @@ function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay }) {
           const visibleRoute = route && !route.inferred ? route : null;
           return (
             <React.Fragment key={it.id}>
-              <div className="m-card" style={{ margin: 0, marginBottom: visibleRoute ? 0 : 10 }}>
+              <div className={`m-card ${it.synthetic ? "m-hotel-anchor" : ""} ${it.type === "meeting" ? "m-meeting-schedule-card" : ""}`} style={{ margin: 0, marginBottom: visibleRoute ? 0 : 10 }}>
                 <div className="m-card-pad">
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                     <span style={{ font: "700 13px/16px var(--font-pretendard)", fontVariantNumeric: "tabular-nums" }}>
@@ -140,14 +142,14 @@ function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay }) {
                       {it.placeNote}
                     </div>
                   )}
-                  <div style={{ font: "500 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-50)", marginTop: 4 }}>{it.desc}</div>
+                  {!it.synthetic && <div style={{ font: "500 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-50)", marginTop: 4 }}>{it.desc}</div>}
                   <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <AvatarStack ids={it.attendees} size="sm" max={5} />
-                    {it.type === "meeting" && (
-                      <span style={{ font: "600 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-90)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    {it.type === "meeting" && it.meetingId && (
+                      <button type="button" onClick={() => onOpenMeeting?.(it.meetingId)} style={{ border: 0, background: "transparent", padding: 0, font: "600 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-90)", display: "inline-flex", alignItems: "center", gap: 4 }}>
                         토킹 포인트
                         <LIcon name="chevron-right" size={14} />
-                      </span>
+                      </button>
                     )}
                   </div>
                 </div>

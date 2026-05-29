@@ -73,11 +73,22 @@ function MobileMeeting({ meetingId = "m-smci-exec", personId = "p-my", onBack })
         <div style={{ marginTop: 10, display: "flex", gap: 6, alignItems: "center" }}>
           <TypeChip type="meeting" />
           {meetingId === "m-smci-exec" && <span className="tone-chip tone-red">핵심</span>}
-          <span style={{ font: "500 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-50)", fontVariantNumeric: "tabular-nums" }}>
-            {day?.label} {sched?.date.slice(5).replace("-", "/")} · {sched?.start} – {sched?.end}
-          </span>
         </div>
         <div className="m-h-title" style={{ marginTop: 6 }}>{meeting.name}</div>
+        <div className="m-meeting-brief">
+          <div>
+            <span>언제</span>
+            <b>{day?.label} {sched?.date.slice(5).replace("-", "/")} · {sched?.start}–{sched?.end}</b>
+          </div>
+          <div>
+            <span>어디서</span>
+            <b>{place?.name || "장소 확인 필요"}</b>
+          </div>
+          <div>
+            <span>누구와</span>
+            <b>{meeting.counterpart || "상대 확인 필요"} · {(meeting.counterpartPeople || []).length}명</b>
+          </div>
+        </div>
         {place && (
           <button type="button" className="m-h-sub" onClick={() => window.openMapUrl(place.mapUrl, `${place.name} ${place.address || ""}`)} style={{ width: "100%", border: 0, background: "transparent", padding: 0, textAlign: "left" }}>
             <LIcon name="map-pin" size={12} />

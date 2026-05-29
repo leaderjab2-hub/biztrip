@@ -23,6 +23,17 @@ function linesToPeople(value) {
   }).filter(Boolean);
 }
 
+function normalizeFormDraft(entity, draft) {
+  const next = cloneData(draft);
+  if (entity === "meetings") {
+    next.counterpartPeople = (next.counterpartPeople || []).filter(p => String(p.name || "").trim()).map(p => ({ name: String(p.name || "").trim(), title: String(p.title || "").trim() }));
+    ["agenda", "talkingPoints", "cautions", "followUps"].forEach(key => {
+      next[key] = (next[key] || []).map(v => String(v || "").trim()).filter(Boolean);
+    });
+  }
+  return next;
+}
+
 function editorNewItem(entity, defaults = {}) {
   const id = window.localId?.(entity.slice(0, 3)) || `${entity}-${Date.now()}`;
   if (entity === "people") return { id, name: "", role: "", type: "member", initials: "", color: "blue", email: "", phone: "", memo: "", ...defaults };
@@ -83,6 +94,49 @@ function SelectInput({ value, onChange, options }) {
   );
 }
 
+function ListInput({ value, onChange, placeholder = "내용 입력" }) {
+  const items = value || [];
+  const updateAt = (idx, nextValue) => onChange(items.map((item, i) => i === idx ? nextValue : item));
+  const removeAt = (idx) => onChange(items.filter((_, i) => i !== idx));
+  return (
+    <div className="list-input">
+      {items.map((item, idx) => (
+        <div key={idx} className="list-input-row">
+          <input value={item || ""} placeholder={placeholder} onChange={e => updateAt(idx, e.target.value)} />
+          <button type="button" className="icon-btn mini" onClick={() => removeAt(idx)} aria-label="삭제">
+            <LIcon name="minus" size={13} />
+          </button>
+        </div>
+      ))}
+      <button type="button" className="adot-btn line" style={{ height: 32, padding: "0 12px", fontSize: 12, alignSelf: "flex-start" }} onClick={() => onChange([...items, ""])}>
+        <LIcon name="plus" size={13} />추가
+      </button>
+    </div>
+  );
+}
+
+function PeopleListInput({ value, onChange }) {
+  const people = value || [];
+  const updateAt = (idx, key, nextValue) => onChange(people.map((item, i) => i === idx ? { ...item, [key]: nextValue } : item));
+  const removeAt = (idx) => onChange(people.filter((_, i) => i !== idx));
+  return (
+    <div className="list-input">
+      {people.map((person, idx) => (
+        <div key={idx} className="list-input-row two">
+          <input value={person.name || ""} placeholder="이름" onChange={e => updateAt(idx, "name", e.target.value)} />
+          <input value={person.title || ""} placeholder="직함" onChange={e => updateAt(idx, "title", e.target.value)} />
+          <button type="button" className="icon-btn mini" onClick={() => removeAt(idx)} aria-label="삭제">
+            <LIcon name="minus" size={13} />
+          </button>
+        </div>
+      ))}
+      <button type="button" className="adot-btn line" style={{ height: 32, padding: "0 12px", fontSize: 12, alignSelf: "flex-start" }} onClick={() => onChange([...people, { name: "", title: "" }])}>
+        <LIcon name="plus" size={13} />참석자 추가
+      </button>
+    </div>
+  );
+}
+
 function AttendeePicker({ value, onChange }) {
   const selected = new Set(value || []);
   const toggle = (id) => {
@@ -135,9 +189,11 @@ function FormActions({ busy, canDelete, onCancel, onDelete, disabled }) {
 
 function EntityForm({ entity, draft, setDraft }) {
   const update = (key, value) => setDraft(d => ({ ...d, [key]: value }));
-  const places = Object.values(window.TRIP_DATA.PLACES).map(p => ({ value: p.id, label: p.name }));
+  const places = [{ value: "", label: "장소 선택 또는 직접 입력" }, ...Object.values(window.TRIP_DATA.PLACES).map(p => ({ value: p.id, label: p.name }))];
   const schedule = window.TRIP_DATA.SCHEDULE.map(s => ({ value: s.id, label: `${s.date.slice(5)} ${s.start} ${s.title}` }));
   const days = window.TRIP_DATA.DAYS.map(d => ({ value: d.date, label: `${d.label} · ${d.date.slice(5).replace("-", "/")}` }));
+  const meetings = [{ value: "", label: "미팅 연결 안 함" }, ...Object.entries(window.TRIP_DATA.MEETINGS).map(([id, m]) => ({ value: id, label: m.name }))];
+  const events = [{ value: "", label: "행사 연결 안 함" }, ...Object.entries(window.TRIP_DATA.EVENTS || {}).map(([id, e]) => ({ value: id, label: e.name }))];
 
   if (entity === "trip") {
     return (
@@ -168,15 +224,27 @@ function EntityForm({ entity, draft, setDraft }) {
   }
 
   if (entity === "schedule") {
+    const pickPlace = (placeId) => {
+      const place = placeId ? window.TD.getPlace(placeId) : null;
+      setDraft(d => ({
+        ...d,
+        placeId,
+        placeName: place?.name || d.placeName || "",
+        placeMapUrl: place?.mapUrl || d.placeMapUrl || "",
+      }));
+    };
     return (
       <div className="form-grid">
         <FormField label="날짜"><SelectInput value={draft.date} onChange={v => update("date", v)} options={days} /></FormField>
-        <FormField label="유형"><SelectInput value={draft.type} onChange={v => update("type", v)} options={[["meeting","미팅"],["event","행사"],["meal","식사"],["flight","항공"],["hotel","호텔"],["move","이동"],["personal","개인"]].map(([value,label]) => ({ value, label }))} /></FormField>
+        <FormField label="유형"><SelectInput value={draft.type} onChange={v => update("type", v)} options={[["meeting","미팅"],["event","행사"],["meal","식사"],["flight","항공"],["hotel","호텔"],["transfer","이동"],["personal","개인"]].map(([value,label]) => ({ value, label }))} /></FormField>
         <FormField label="시작"><TextInput type="time" value={draft.start} onChange={v => update("start", v)} /></FormField>
         <FormField label="종료"><TextInput type="time" value={draft.end} onChange={v => update("end", v)} /></FormField>
         <FormField label="제목" wide><TextInput value={draft.title} onChange={v => update("title", v)} /></FormField>
+        <FormField label="기존 장소" wide><SelectInput value={draft.placeId} onChange={pickPlace} options={places} /></FormField>
         <FormField label="장소" wide><PlacePicker nameValue={draft.placeName} mapUrlValue={draft.placeMapUrl} onNameChange={v => update("placeName", v)} onMapUrlChange={v => update("placeMapUrl", v)} /></FormField>
         <FormField label="상세 위치" wide><TextInput value={draft.placeNote} onChange={v => update("placeNote", v)} placeholder="예: 3층 Ballroom 앞, Hall 2 Booth R0302, 북문 Gate B" /></FormField>
+        {draft.type === "meeting" && <FormField label="미팅 연결" wide><SelectInput value={draft.meetingId} onChange={v => update("meetingId", v)} options={meetings} /></FormField>}
+        {draft.type === "event" && <FormField label="행사 연결" wide><SelectInput value={draft.eventId} onChange={v => update("eventId", v)} options={events} /></FormField>}
         <FormField label="설명" wide><TextAreaInput rows={3} value={draft.desc} onChange={v => update("desc", v)} /></FormField>
         <FormField label="참석자" wide><AttendeePicker value={draft.attendees} onChange={v => update("attendees", v)} /></FormField>
       </div>
@@ -226,11 +294,11 @@ function EntityForm({ entity, draft, setDraft }) {
         <FormField label="미팅명" wide><TextInput value={draft.name} onChange={v => update("name", v)} /></FormField>
         <FormField label="상대 회사"><TextInput value={draft.counterpart} onChange={v => update("counterpart", v)} /></FormField>
         <FormField label="목적" wide><TextAreaInput rows={3} value={draft.objective} onChange={v => update("objective", v)} /></FormField>
-        <FormField label="상대 참석자" wide><TextAreaInput rows={4} value={peopleToLines(draft.counterpartPeople)} onChange={v => update("counterpartPeople", linesToPeople(v))} placeholder="이름 | 직함" /></FormField>
-        <FormField label="아젠다" wide><TextAreaInput rows={4} value={arrayToLines(draft.agenda)} onChange={v => update("agenda", linesToArray(v))} placeholder="한 줄에 하나씩" /></FormField>
-        <FormField label="토킹 포인트" wide><TextAreaInput rows={4} value={arrayToLines(draft.talkingPoints)} onChange={v => update("talkingPoints", linesToArray(v))} /></FormField>
-        <FormField label="주의사항" wide><TextAreaInput rows={3} value={arrayToLines(draft.cautions)} onChange={v => update("cautions", linesToArray(v))} /></FormField>
-        <FormField label="후속 액션" wide><TextAreaInput rows={3} value={arrayToLines(draft.followUps)} onChange={v => update("followUps", linesToArray(v))} /></FormField>
+        <FormField label="상대 참석자" wide><PeopleListInput value={draft.counterpartPeople} onChange={v => update("counterpartPeople", v)} /></FormField>
+        <FormField label="아젠다" wide><ListInput value={draft.agenda} onChange={v => update("agenda", v)} placeholder="아젠다" /></FormField>
+        <FormField label="토킹 포인트" wide><ListInput value={draft.talkingPoints} onChange={v => update("talkingPoints", v)} placeholder="토킹 포인트" /></FormField>
+        <FormField label="주의사항" wide><ListInput value={draft.cautions} onChange={v => update("cautions", v)} placeholder="주의사항" /></FormField>
+        <FormField label="후속 액션" wide><ListInput value={draft.followUps} onChange={v => update("followUps", v)} placeholder="후속 액션" /></FormField>
       </div>
     );
   }
@@ -302,7 +370,7 @@ function WebEntityEditor({ entity, item, title, defaults, onClose, onSaved, allo
     setBusy(true);
     setError("");
     try {
-      let nextDraft = cloneData(draft);
+      let nextDraft = normalizeFormDraft(entity, draft);
       if (entity === "schedule" || entity === "events") {
         const placeName = String(nextDraft.placeName || "").trim();
         if (placeName) {
@@ -370,4 +438,4 @@ function WebEntityEditor({ entity, item, title, defaults, onClose, onSaved, allo
   );
 }
 
-Object.assign(window, { WebEntityEditor, editorNewItem });
+Object.assign(window, { WebEntityEditor, editorNewItem, normalizeFormDraft });

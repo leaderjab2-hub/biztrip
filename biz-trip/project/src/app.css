@@ -498,6 +498,20 @@ html, body {
   resize: vertical;
   padding: 10px;
 }
+.list-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.list-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 30px;
+  gap: 8px;
+  align-items: center;
+}
+.list-input-row.two {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 30px;
+}
 .form-check-grid {
   display: flex;
   flex-wrap: wrap;
@@ -1055,6 +1069,85 @@ html, body {
   margin-top: 1px;
   font: 700 10px/13px var(--font-pretendard);
   color: var(--on-surface-neutral-50);
+}
+.m-place-strip {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.m-place-strip button {
+  flex-shrink: 0;
+  min-width: 118px;
+  max-width: 190px;
+  height: 42px;
+  padding: 0 10px;
+  border: 1px solid var(--divider-10);
+  border-radius: 8px;
+  background: var(--bg-00);
+  color: var(--on-surface-neutral-80);
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) 14px;
+  align-items: center;
+  gap: 6px;
+  text-align: left;
+}
+.m-place-strip button span {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: var(--on-surface-neutral-100);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font: 800 10px/12px var(--font-pretendard);
+}
+.m-place-strip button b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 700 11px/14px var(--font-pretendard);
+}
+.m-hotel-anchor {
+  background: var(--surface-neutral-10);
+  border-style: dashed;
+}
+.m-hotel-anchor .m-card-pad {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.m-hotel-anchor .avatar-stack {
+  display: none !important;
+}
+.m-meeting-schedule-card {
+  border-color: var(--blue-100);
+}
+.m-meeting-brief {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+.m-meeting-brief div {
+  min-height: 42px;
+  border: 1px solid var(--divider-10);
+  border-radius: 8px;
+  background: var(--bg-00);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+.m-meeting-brief span {
+  font: 800 10px/12px var(--font-pretendard);
+  color: var(--on-surface-neutral-50);
+}
+.m-meeting-brief b {
+  font: 800 13px/16px var(--font-pretendard);
+  color: var(--on-surface-neutral-100);
 }
 .m-day-card,
 .m-meeting-card {
