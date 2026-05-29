@@ -2,7 +2,7 @@
 // 1280 wide, ~960 tall
 
 function WebSidebar({ active = "dashboard" }) {
-  const { PEOPLE, FLIGHTS, HOTEL, SCHEDULE, MEETINGS } = window.TRIP_DATA;
+  const { PEOPLE, FLIGHTS, HOTEL, SCHEDULE, MEETINGS, EVENTS } = window.TRIP_DATA;
   const items = [
     { id: "dashboard",  label: "개요",          icon: "layout-dashboard", count: null, href: "/dashboard" },
     { id: "people",     label: "참석자",        icon: "users",            count: PEOPLE.length, href: "/people" },
@@ -10,6 +10,7 @@ function WebSidebar({ active = "dashboard" }) {
     { id: "hotels",     label: "호텔",          icon: "bed-double",       count: HOTEL ? 1 : 0, href: "/hotels" },
     { id: "itinerary",  label: "Day별 일정",    icon: "calendar-days",    count: SCHEDULE.length, href: "/itinerary" },
     { id: "meetings",   label: "미팅",          icon: "handshake",        count: Object.keys(MEETINGS).length, href: "/meetings" },
+    { id: "events",     label: "행사",          icon: "ticket",           count: Object.keys(EVENTS).length, href: "/events" },
     { id: "routes",     label: "이동 동선",     icon: "route",            count: null, href: "/routes" },
     { id: "admin",      label: "데이터 편집",   icon: "database",         count: null, href: "/admin" },
     { id: "report",     label: "브리핑 리포트", icon: "file-text",        count: null, href: "/share?screen=briefing&personId=p-my&day=2026-06-01&now=10:42" },
@@ -18,7 +19,7 @@ function WebSidebar({ active = "dashboard" }) {
   return (
     <div className="sidebar">
       <div className="group">출장 관리</div>
-      {items.slice(0, 8).map(it => (
+      {items.slice(0, 9).map(it => (
         <div key={it.id} className={`nav-item ${active === it.id ? "active" : ""}`} onClick={() => window.location.hash = it.href}>
           <LIcon name={it.icon} size={16} />
           <span>{it.label}</span>
@@ -26,7 +27,7 @@ function WebSidebar({ active = "dashboard" }) {
         </div>
       ))}
       <div className="group">공유</div>
-      {items.slice(8).map(it => (
+      {items.slice(9).map(it => (
         <div key={it.id} className={`nav-item ${active === it.id ? "active" : ""}`} onClick={() => window.location.hash = it.href}>
           <LIcon name={it.icon} size={16} />
           <span>{it.label}</span>
