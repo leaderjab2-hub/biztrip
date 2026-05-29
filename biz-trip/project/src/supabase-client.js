@@ -248,6 +248,12 @@ function localId(prefix) {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
+function routeSegmentId(item) {
+  if (item?.id) return item.id;
+  const stable = [item?.date, item?.fromSched, item?.toSched].filter(Boolean).join("-");
+  return stable ? `r-${stable.replace(/[^A-Za-z0-9_-]/g, "-")}` : localId("rou");
+}
+
 const tableIds = {
   trip: "trips",
   people: "people",
@@ -281,7 +287,7 @@ function toDbRow(entity, item) {
   }
   if (entity === "meetings") return { id: item.id, trip_id: BIZTRIP_ID, name: item.name, counterpart: item.counterpart, counterpart_people: item.counterpartPeople || [], objective: item.objective, agenda: item.agenda || [], talking_points: item.talkingPoints || [], cautions: item.cautions || [], follow_ups: item.followUps || [], memo: item.memo };
   if (entity === "events") return { id: item.id, trip_id: BIZTRIP_ID, name: item.name, host: item.host, place_id: item.placeId, start_date: item.start, end_date: item.end, purpose: item.purpose, dress_code: item.dressCode, sessions: item.sessions || [], memo: item.memo };
-  if (entity === "routes") return { id: item.id, trip_id: BIZTRIP_ID, date: item.date, from_sched: item.fromSched, to_sched: item.toSched, from_place: item.from, to_place: item.to, mode: item.mode, distance: item.distance, duration_min: item.durationMin, buffer_min: item.bufferMin, dep: item.dep, inferred: item.inferred || false };
+  if (entity === "routes") return { id: routeSegmentId(item), trip_id: BIZTRIP_ID, date: item.date, from_sched: item.fromSched, to_sched: item.toSched, from_place: item.from, to_place: item.to, mode: item.mode, distance: item.distance, duration_min: item.durationMin, buffer_min: item.bufferMin, dep: item.dep, inferred: item.inferred || false };
   return { ...item, trip_id: BIZTRIP_ID };
 }
 
@@ -328,4 +334,5 @@ Object.assign(window, {
   deleteEntity,
   replaceRoutesForDay,
   localId,
+  routeSegmentId,
 });

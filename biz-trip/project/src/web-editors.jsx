@@ -41,6 +41,9 @@ function normalizeFormDraft(entity, draft) {
   if (entity === "hotels") {
     next.guests = window.personRefIds(next.guests);
   }
+  if (entity === "routes") {
+    next.id = window.routeSegmentId?.(next) || next.id || window.localId("rou");
+  }
   return next;
 }
 
@@ -371,6 +374,9 @@ function WebEntityEditor({ entity, item, title, defaults, onClose, onSaved, allo
     }
     if (entity === "hotels") {
       return { ...base, guests: window.personRefIds(base.guests) };
+    }
+    if (entity === "routes") {
+      return { ...base, id: window.routeSegmentId?.(base) || base.id || window.localId("rou") };
     }
     return base;
   });

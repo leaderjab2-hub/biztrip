@@ -32,7 +32,7 @@ function RouteList({ date, personFilter, onEdit }) {
         const fromSched = window.TRIP_DATA.SCHEDULE.find(s => s.id === route.fromSched);
         const toSched = window.TRIP_DATA.SCHEDULE.find(s => s.id === route.toSched);
         return (
-          <div key={`${route.fromSched}-${route.toSched}`} className="route-row">
+          <div key={route.id || `${route.date}-${route.fromSched}-${route.toSched}`} className="route-row">
             <div className="route-index">{idx + 1}</div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>

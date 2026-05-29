@@ -29,6 +29,9 @@ function prepareAdminDraft(entity, item) {
   if (entity === "hotels") {
     return { ...base, guests: window.personRefIds(base.guests) };
   }
+  if (entity === "routes") {
+    return { ...base, id: window.routeSegmentId?.(base) || base.id || window.localId("rou") };
+  }
   return base;
 }
 
