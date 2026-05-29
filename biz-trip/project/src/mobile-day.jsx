@@ -132,9 +132,13 @@ function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay, onOpe
                   </div>
                   <div style={{ font: "600 15px/20px var(--font-pretendard)" }}>{it.title}</div>
                   {place && (
-                    <button type="button" onClick={() => window.openMapUrl(place.mapUrl, `${place.name} ${it.placeNote || ""}`)} style={{ font: "500 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-60)", marginTop: 4, display: "flex", alignItems: "center", gap: 4, padding: 0, border: 0, background: "transparent", cursor: place.mapUrl ? "pointer" : "default" }}>
-                      <LIcon name="map-pin" size={12} color="var(--on-surface-neutral-50)" />
-                      {place.name}
+                    <button type="button" className="m-map-link" onClick={() => window.openMapUrl(place.mapUrl, `${place.name} ${it.placeNote || ""}`)}>
+                      <span>
+                        <LIcon name="map-pin" size={13} />
+                        <b>{place.name}</b>
+                      </span>
+                      <em>지도 열기</em>
+                      <LIcon name="external-link" size={12} />
                     </button>
                   )}
                   {it.placeNote && (
