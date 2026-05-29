@@ -193,6 +193,15 @@ function ShareApp({ route, settings }) {
   const openDays = (nextDay = firstDay) => nextScreen("days", { day: nextDay });
   const navScreen = screen === "meeting" ? "meetings" : screen;
 
+  useEffect(() => {
+    const resetScroll = () => {
+      document.querySelector(".share-native-body")?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      window.scrollTo(0, 0);
+    };
+    resetScroll();
+    requestAnimationFrame(resetScroll);
+  }, [screen, day, meetingId, personId]);
+
   return (
     <div className="share-native">
       <div className="share-native-status">
