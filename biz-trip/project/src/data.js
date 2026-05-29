@@ -98,7 +98,9 @@ const SCHEDULE = [
   { id: "s-204", date: "2026-06-02", start: "13:00", end: "14:00", type: "event", title: "NCP 기술 세션", placeId: "pl-unknown", attendees: ALL_ATTENDEES, desc: "시간 및 장소 상세 확인 필요" },
   { id: "s-205", date: "2026-06-02", start: "14:00", end: "15:00", type: "event", title: "Petasus 기술 세션", placeId: "pl-gmi", attendees: ALL_ATTENDEES, desc: "GMI Booth, Hall 2 Booth R0302" },
   { id: "s-206", date: "2026-06-02", start: "15:30", end: "17:00", type: "event", title: "NVIDIA APAC NCP Summit", placeId: "pl-grand-hilai", attendees: ALL_ATTENDEES, desc: "오후 세션" },
-  { id: "s-207", date: "2026-06-02", start: "18:00", end: "20:00", type: "event", title: "NVIDIA NCPs Reception", placeId: "pl-mandarin", attendees: ALL_ATTENDEES, desc: "Mandarin Oriental, Taipei Ballroom" },
+  { id: "s-207", date: "2026-06-02", start: "18:00", end: "18:40", type: "event", title: "NVIDIA NCPs Reception", placeId: "pl-mandarin", attendees: ALL_ATTENDEES, desc: "Mandarin Oriental, Taipei Ballroom" },
+  { id: "s-208", date: "2026-06-02", start: "19:00", end: "19:50", type: "meal", title: "저녁 만찬 일정 2", placeId: "", attendees: ALL_ATTENDEES, desc: "장소 및 상세 일정 입력 예정" },
+  { id: "s-209", date: "2026-06-02", start: "20:00", end: "21:00", type: "meal", title: "저녁 만찬 일정 3", placeId: "", attendees: ALL_ATTENDEES, desc: "장소 및 상세 일정 입력 예정" },
 
   { id: "s-301", date: "2026-06-03", start: "10:00", end: "11:00", type: "meeting", title: "NVIDIA Meeting", placeId: "pl-tainan-room", attendees: ALL_ATTENDEES, desc: "NCP 기반 세일즈 채널 및 GPU 인프라 구매 수요 협의", meetingId: "m-nvidia" },
   { id: "s-302", date: "2026-06-03", start: "12:00", end: "13:00", type: "meeting", title: "Intel Lunch Meeting", placeId: "pl-unknown", attendees: ALL_ATTENDEES, desc: "세부 내용 확인 필요", meetingId: "m-intel" },
