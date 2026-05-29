@@ -48,7 +48,7 @@ function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay, onOpe
 
   return (
     <div className="m-screen">
-      <div className="m-header">
+      <div className="m-header m-day-sticky">
         <div className="m-h-eyebrow">
           <LIcon name="calendar-days" size={12} />
           <span>일정</span>

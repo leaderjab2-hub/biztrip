@@ -121,7 +121,11 @@ function MobileMeeting({ meetingId = "m-smci-exec", personId = "p-my", onBack })
                 <div style={{ font: "600 14px/18px var(--font-pretendard)" }}>{cp.name}</div>
                 <div style={{ font: "500 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>{cp.title}</div>
               </div>
-              <LIcon name="linkedin" size={16} color="var(--icon-dim)" />
+              {cp.linkedin && (
+                <button type="button" onClick={() => window.open(cp.linkedin, "_blank", "noopener,noreferrer")} aria-label={`${cp.name} LinkedIn`} style={{ width: 30, height: 30, border: 0, borderRadius: 8, background: "var(--surface-neutral-10)", display: "grid", placeItems: "center" }}>
+                  <LIcon name="linkedin" size={16} color="var(--blue-700)" />
+                </button>
+              )}
             </div>
           ))}
         </div>

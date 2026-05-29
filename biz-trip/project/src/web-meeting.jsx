@@ -214,6 +214,11 @@ function WebMeeting({ meetingId = "m-smci-exec", accent = "mono", onDataChanged 
                         <div style={{ font: "600 13px/16px var(--font-pretendard)" }}>{cp.name}</div>
                         <div style={{ font: "500 11px/14px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>{cp.title}</div>
                       </div>
+                      {cp.linkedin && (
+                        <button className="icon-btn mini" onClick={() => window.open(cp.linkedin, "_blank", "noopener,noreferrer")} aria-label={`${cp.name} LinkedIn`}>
+                          <LIcon name="linkedin" size={13} />
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>

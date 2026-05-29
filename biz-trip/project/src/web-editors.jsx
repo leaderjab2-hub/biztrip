@@ -26,7 +26,11 @@ function linesToPeople(value) {
 function normalizeFormDraft(entity, draft) {
   const next = cloneData(draft);
   if (entity === "meetings") {
-    next.counterpartPeople = (next.counterpartPeople || []).filter(p => String(p.name || "").trim()).map(p => ({ name: String(p.name || "").trim(), title: String(p.title || "").trim() }));
+    next.counterpartPeople = (next.counterpartPeople || []).filter(p => String(p.name || "").trim()).map(p => ({
+      name: String(p.name || "").trim(),
+      title: String(p.title || "").trim(),
+      linkedin: String(p.linkedin || "").trim(),
+    }));
     ["agenda", "talkingPoints", "cautions", "followUps"].forEach(key => {
       next[key] = (next[key] || []).map(v => String(v || "").trim()).filter(Boolean);
     });
@@ -122,15 +126,16 @@ function PeopleListInput({ value, onChange }) {
   return (
     <div className="list-input">
       {people.map((person, idx) => (
-        <div key={idx} className="list-input-row two">
+        <div key={idx} className="list-input-row three">
           <input value={person.name || ""} placeholder="이름" onChange={e => updateAt(idx, "name", e.target.value)} />
           <input value={person.title || ""} placeholder="직함" onChange={e => updateAt(idx, "title", e.target.value)} />
+          <input value={person.linkedin || ""} placeholder="LinkedIn URL" onChange={e => updateAt(idx, "linkedin", e.target.value)} />
           <button type="button" className="icon-btn mini" onClick={() => removeAt(idx)} aria-label="삭제">
             <LIcon name="minus" size={13} />
           </button>
         </div>
       ))}
-      <button type="button" className="adot-btn line" style={{ height: 32, padding: "0 12px", fontSize: 12, alignSelf: "flex-start" }} onClick={() => onChange([...people, { name: "", title: "" }])}>
+      <button type="button" className="adot-btn line" style={{ height: 32, padding: "0 12px", fontSize: 12, alignSelf: "flex-start" }} onClick={() => onChange([...people, { name: "", title: "", linkedin: "" }])}>
         <LIcon name="plus" size={13} />참석자 추가
       </button>
     </div>
