@@ -305,11 +305,12 @@ window.TD = {
   }),
   getRoutesForDay: (date, personId = "all") => {
     const items = personId === "all" ? window.TD.getDayItems(date) : window.TD.getPersonItems(date, personId);
+    const explicitRoutes = window.TRIP_DATA.ROUTES || [];
     const segments = [];
     for (let i = 0; i < items.length - 1; i++) {
       const from = items[i], to = items[i + 1];
       if (!from.placeId || !to.placeId || from.placeId === to.placeId) continue;
-      const explicit = ROUTES.find(r => r.date === date && r.fromSched === from.id && r.toSched === to.id);
+      const explicit = explicitRoutes.find(r => r.date === date && r.fromSched === from.id && r.toSched === to.id);
       if (explicit) {
         segments.push(explicit);
         continue;

@@ -177,6 +177,39 @@ function rebuildHelpers(data) {
       routes: data.ROUTES.length,
       scheduleItems: data.SCHEDULE.length,
     }),
+    getRoutesForDay: (date, personId = "all") => {
+      const items = personId === "all"
+        ? data.SCHEDULE.filter(s => s.date === date).sort((a, b) => a.start.localeCompare(b.start))
+        : data.SCHEDULE.filter(s => s.date === date && s.attendees.includes(personId)).sort((a, b) => a.start.localeCompare(b.start));
+      const segments = [];
+      for (let i = 0; i < items.length - 1; i++) {
+        const from = items[i];
+        const to = items[i + 1];
+        if (!from.placeId || !to.placeId || from.placeId === to.placeId) continue;
+        const explicit = data.ROUTES.find(r => r.date === date && r.fromSched === from.id && r.toSched === to.id);
+        if (explicit) {
+          segments.push(explicit);
+          continue;
+        }
+        const gap = Math.max(10, window.diffMin(from.end || from.start, to.start));
+        const durationMin = Math.min(28, Math.max(8, Math.round(gap * 0.35)));
+        const bufferMin = 10;
+        segments.push({
+          date,
+          fromSched: from.id,
+          toSched: to.id,
+          from: from.placeId,
+          to: to.placeId,
+          mode: gap <= 45 ? "walking" : "driving",
+          distance: gap <= 45 ? 0.9 : 5.0,
+          durationMin,
+          bufferMin,
+          dep: window.minToHHMM(window.hhmmToMin(to.start) - durationMin - bufferMin),
+          inferred: true,
+        });
+      }
+      return segments;
+    },
   };
   return data;
 }
