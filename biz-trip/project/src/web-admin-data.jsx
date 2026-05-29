@@ -65,20 +65,11 @@ function WebAdminData({ onDataChanged }) {
     try {
       let nextDraft = window.normalizeFormDraft ? window.normalizeFormDraft(entity, draft) : cloneForEdit(draft);
       if (entity === "schedule" || entity === "events") {
-        const placeName = String(nextDraft.placeName || "").trim();
-        if (placeName) {
-          const placeId = nextDraft.placeId || window.localId("pl");
-          const current = nextDraft.placeId ? window.TD.getPlace(nextDraft.placeId) : null;
-          await window.upsertEntity("places", {
-            id: placeId,
-            name: placeName,
-            address: current?.address || "",
-            lat: current?.lat ?? null,
-            lng: current?.lng ?? null,
-            externalPlaceId: current?.externalPlaceId || "",
-            mapUrl: window.normalizeMapUrl(nextDraft.placeMapUrl, placeName),
-          });
-          nextDraft.placeId = placeId;
+        const current = nextDraft.placeId ? window.TD.getPlace(nextDraft.placeId) : null;
+        const placeMeta = window.resolveLinkedPlace(nextDraft.placeId, current, nextDraft.placeName, nextDraft.placeMapUrl);
+        if (placeMeta.placeRow) {
+          await window.upsertEntity("places", placeMeta.placeRow);
+          nextDraft.placeId = placeMeta.placeId;
         } else {
           nextDraft.placeId = "";
         }

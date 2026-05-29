@@ -106,6 +106,30 @@ function normalizeMapUrl(url, fallbackQuery) {
   return text || buildGoogleMapsSearchUrl(fallbackQuery);
 }
 
+function resolveLinkedPlace(currentPlaceId, currentPlace, placeName, placeMapUrl) {
+  const nextName = String(placeName || "").trim();
+  if (!nextName) return { placeId: "", placeRow: null };
+
+  const nextMapUrl = normalizeMapUrl(placeMapUrl, nextName);
+  const currentName = String(currentPlace?.name || "").trim();
+  const currentMapUrl = normalizeMapUrl(currentPlace?.mapUrl, currentName);
+  const unchanged = Boolean(currentPlaceId) && currentName === nextName && currentMapUrl === nextMapUrl;
+  const placeId = unchanged ? currentPlaceId : window.localId("pl");
+
+  return {
+    placeId,
+    placeRow: {
+      id: placeId,
+      name: nextName,
+      address: unchanged ? (currentPlace?.address || "") : "",
+      lat: unchanged ? (currentPlace?.lat ?? null) : null,
+      lng: unchanged ? (currentPlace?.lng ?? null) : null,
+      externalPlaceId: unchanged ? (currentPlace?.externalPlaceId || "") : "",
+      mapUrl: nextMapUrl,
+    },
+  };
+}
+
 function openMapUrl(url, fallbackQuery) {
   const target = normalizeMapUrl(url, fallbackQuery);
   if (!target) return;
@@ -115,5 +139,5 @@ function openMapUrl(url, fallbackQuery) {
 Object.assign(window, {
   LIcon, Avatar, AvatarStack, TypeChip, StatusChip,
   nextUpFor, currentFor, hhmmToMin, minToHHMM, diffMin, routeBetween,
-  personRefId, personRefIds, buildGoogleMapsSearchUrl, normalizeMapUrl, openMapUrl,
+  personRefId, personRefIds, buildGoogleMapsSearchUrl, normalizeMapUrl, resolveLinkedPlace, openMapUrl,
 });
