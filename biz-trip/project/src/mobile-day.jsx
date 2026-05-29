@@ -1,10 +1,42 @@
 // Mobile share — Day detail with route segments inline
 
 function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay }) {
-  const items = window.TD.getPersonItems(date, personId);
+  const rawItems = window.TD.getPersonItems(date, personId);
   const person = window.TD.getPerson(personId);
   const day = window.TRIP_DATA.DAYS.find(d => d.date === date);
   const allDays = window.TRIP_DATA.DAYS;
+  const hotelPlaceId = "pl-caesar";
+  const hotelPlace = window.TD.getPlace(hotelPlaceId);
+  const localItems = rawItems.filter(item => item.type !== "flight" && item.placeId !== "pl-icn" && item.placeId !== "pl-tpe");
+  const firstLocal = localItems[0];
+  const lastLocal = localItems[localItems.length - 1];
+  const hotelStart = firstLocal ? window.minToHHMM(Math.max(0, window.hhmmToMin(firstLocal.start) - 30)) : "11:00";
+  const hotelEnd = lastLocal ? window.minToHHMM(window.hhmmToMin(lastLocal.end || lastLocal.start) + 30) : "12:00";
+  const startAnchor = firstLocal?.placeId === hotelPlaceId ? [] : [{
+    id: `hotel-start-${date}`,
+    date,
+    start: hotelStart,
+    end: firstLocal ? firstLocal.start : "12:00",
+    type: "hotel",
+    title: firstLocal ? "호텔 출발" : "호텔 체크아웃",
+    placeId: hotelPlaceId,
+    attendees: [personId],
+    desc: hotelPlace?.name || "호텔",
+    synthetic: true,
+  }];
+  const endAnchor = lastLocal?.placeId === hotelPlaceId ? [] : [{
+    id: `hotel-end-${date}`,
+    date,
+    start: lastLocal ? lastLocal.end : "12:00",
+    end: hotelEnd,
+    type: "hotel",
+    title: lastLocal ? "호텔 복귀" : "호텔 대기",
+    placeId: hotelPlaceId,
+    attendees: [personId],
+    desc: hotelPlace?.name || "호텔",
+    synthetic: true,
+  }];
+  const items = [...startAnchor, ...localItems, ...endAnchor];
   const placeStops = items
     .map(item => item.placeId ? window.TD.getPlace(item.placeId) : null)
     .filter(Boolean)
@@ -27,7 +59,7 @@ function MobileDay({ personId = "p-ceo", date = "2026-06-11", onChangeDay }) {
             {day?.label} <span style={{ font: "500 13px/18px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>· {day?.title}</span>
           </div>
           <div style={{ font: "500 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-50)", marginTop: 2 }}>
-            {date.replace(/-/g, ".")} ({day?.weekday}) · 일정 {items.length}건
+            {date.replace(/-/g, ".")} ({day?.weekday}) · 현지 일정 {localItems.length}건
           </div>
         </div>
         <div className="m-day-tabs">
