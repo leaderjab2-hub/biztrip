@@ -133,7 +133,8 @@ function resolveLinkedPlace(currentPlaceId, currentPlace, placeName, placeMapUrl
 function openMapUrl(url, fallbackQuery) {
   const target = normalizeMapUrl(url, fallbackQuery);
   if (!target) return;
-  window.open(target, "_blank", "noopener,noreferrer");
+  const opened = window.open(target, "_blank", "noopener,noreferrer");
+  if (!opened) window.location.assign(target);
 }
 
 Object.assign(window, {

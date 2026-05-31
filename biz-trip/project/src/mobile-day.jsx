@@ -44,7 +44,6 @@ function MobileDay({ personId = "p-roy", date = "2026-06-11", onChangeDay, onOpe
   const knownPlaceStops = placeStops.filter(place => place.id !== "pl-unknown");
   const firstPlace = knownPlaceStops[0];
   const lastPlace = knownPlaceStops[knownPlaceStops.length - 1];
-  const explicitRoutes = window.TD.getRoutesForDay(date, personId).filter(route => !route.inferred);
 
   return (
     <div className="m-screen">
@@ -103,11 +102,6 @@ function MobileDay({ personId = "p-roy", date = "2026-06-11", onChangeDay, onOpe
                 ))}
               </div>
             )}
-            {explicitRoutes.length > 0 && (
-              <div style={{ marginTop: 10, font: "500 11px/15px var(--font-pretendard)", color: "var(--on-surface-neutral-50)" }}>
-                이동시간 {explicitRoutes.length}건 입력됨 · 일정 사이에 표시
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -117,12 +111,9 @@ function MobileDay({ personId = "p-roy", date = "2026-06-11", onChangeDay, onOpe
       <div style={{ padding: "0 18px 20px" }}>
         {items.map((it, idx) => {
           const place = it.placeId ? window.TD.getPlace(it.placeId) : null;
-          const next = items[idx + 1];
-          const route = next ? window.routeBetween(date, it.id, next.id) : null;
-          const visibleRoute = route && !route.inferred ? route : null;
           return (
             <React.Fragment key={it.id}>
-              <div className={`m-card ${it.synthetic ? "m-hotel-anchor" : ""} ${it.type === "meeting" ? "m-meeting-schedule-card" : ""}`} style={{ margin: 0, marginBottom: visibleRoute ? 0 : 10 }}>
+              <div className={`m-card ${it.synthetic ? "m-hotel-anchor" : ""} ${it.type === "meeting" ? "m-meeting-schedule-card" : ""}`} style={{ margin: 0, marginBottom: 10 }}>
                 <div className="m-card-pad">
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                     <span style={{ font: "700 13px/16px var(--font-pretendard)", fontVariantNumeric: "tabular-nums" }}>
@@ -158,34 +149,6 @@ function MobileDay({ personId = "p-roy", date = "2026-06-11", onChangeDay, onOpe
                   </div>
                 </div>
               </div>
-              {visibleRoute && (
-                <div style={{
-                  margin: "0 0 10px",
-                  display: "flex", alignItems: "center", gap: 10,
-                  padding: "10px 16px",
-                  background: "transparent",
-                  position: "relative",
-                }}>
-                  <div style={{ width: 28, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <div style={{ width: 2, height: 12, background: "var(--surface-neutral-30)" }} />
-                    <div style={{
-                      width: 24, height: 24, borderRadius: 9999, background: "var(--bg-oat-10)",
-                      display: "grid", placeItems: "center", border: "1px solid var(--oatmeal-200)",
-                    }}>
-                      <LIcon name="car" size={12} color="var(--oatmeal-800)" />
-                    </div>
-                    <div style={{ width: 2, height: 12, background: "var(--surface-neutral-30)" }} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ font: "600 12px/16px var(--font-pretendard)", color: "var(--on-surface-neutral-80)" }}>
-                      이동 {visibleRoute.durationMin}분 · {visibleRoute.distance}km
-                    </div>
-                    <div style={{ font: "500 11px/14px var(--font-pretendard)", color: "var(--blue-700)", marginTop: 2 }}>
-                      권장 출발 {visibleRoute.dep} (버퍼 {visibleRoute.bufferMin}분)
-                    </div>
-                  </div>
-                </div>
-              )}
             </React.Fragment>
           );
         })}
